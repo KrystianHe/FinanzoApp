@@ -1,11 +1,16 @@
 package com.app.wydatki.controller;
 
 
+import com.app.wydatki.dto.fiilter.UserFilterDTO;
+import com.app.wydatki.dto.response.ObjectAndTotalResponse;
 import com.app.wydatki.dto.UserDTO;
+import com.app.wydatki.dto.fiilter.UserFilterDTO;
+import com.app.wydatki.dto.response.ObjectAndTotalResponse;
 import com.app.wydatki.exceptions.UserAlreadyExistsException;
 import com.app.wydatki.model.User;
 import com.app.wydatki.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +25,8 @@ import java.util.List;
 @Slf4j
 public class UserController {
 
+
+    @Autowired
     private UserService userService;
 
 
@@ -39,4 +46,3 @@ public class UserController {
         }
     }
 }
-
