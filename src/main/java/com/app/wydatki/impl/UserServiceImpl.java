@@ -9,7 +9,7 @@ import com.app.wydatki.service.UserService;
 import java.util.List;
 import java.util.Optional;
 
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends UserService {
 
     private UserRepository userRepository;
 
@@ -22,4 +22,5 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllUsers() {
         return userRepository.getAllUsers();
     }
+
 }
