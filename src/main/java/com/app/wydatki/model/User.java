@@ -1,7 +1,7 @@
 package com.app.wydatki.model;
 
-import com.app.mainbudgetapplication.enums.UserState;
-import com.app.mainbudgetapplication.enums.UserType;
+import com.app.wydatki.enums.UserState;
+import com.app.wydatki.enums.UserType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

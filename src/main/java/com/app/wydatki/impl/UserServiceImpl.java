@@ -5,11 +5,13 @@ import com.app.wydatki.dto.fiilter.UserFilterDTO;
 import com.app.wydatki.model.User;
 import com.app.wydatki.repository.UserRepository;
 import com.app.wydatki.service.UserService;
+import lombok.Data;
 
 import java.util.List;
 import java.util.Optional;
 
-public class UserServiceImpl implements UserService {
+@Data
+public class UserServiceImpl extends UserService {
 
     private UserRepository userRepository;
 
@@ -22,4 +24,5 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllUsers() {
         return userRepository.getAllUsers();
     }
+
 }
