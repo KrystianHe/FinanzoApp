@@ -7,9 +7,8 @@ import com.app.wydatki.exceptions.NotFoundUserExceptions;
 import com.app.wydatki.exceptions.UserAlreadyExistsException;
 import com.app.wydatki.model.User;
 import com.app.wydatki.repository.UserRepository;
-import com.app.wydatki.service.SendEmailService;
+import com.app.wydatki.request.UserActivateAccount;
 import com.app.wydatki.service.UserService;
-import com.app.wydatki.utils.EmailCodeGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,31 +21,36 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final SendEmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public String findByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
     @Override
-    public UserState updateUserStatus(String email, UserState newState, String verificationCode) {
+    public boolean activateUserAccount(UserActivateAccount userActivateAccount) {
+        User user = userRepository.findByEmailAndVerificationCode(
+                userActivateAccount.getEmail(), userActivateAccount.getVerificationCode()
+        ).orElseThrow(() -> new NotFoundUserExceptions("Niepoprawny email lub kod weryfikacyjny."));
+
+        user.setStatus(UserState.ACTIVE);
+        user.setVerificationCode(null);
+        userRepository.save(user);
+        return true;
+    }
+
+    @Override
+    public UserState updateUserStatus(String email, UserState newState) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundUserExceptions("Użytkownik z podanym e-mailem nie istnieje w bazie"));
 
-        if (newState == UserState.INACTIVE && statusChangeRequiresCode) {
-            if (user.getVerificationCode() == null || !user.getVerificationCode().equals(verificationCode)) {
-                throw new IllegalArgumentException("Kod weryfikacyjny jest niepoprawny lub wygasł.");
-            }
-
-            user.setVerificationCode(null);
+        if (user.getStatus() == newState) {
+            throw new IllegalArgumentException("Nowy status nie może być taki sam jak obecny.");
         }
 
-        // Zmiana statusu użytkownika
         user.setStatus(newState);
         userRepository.save(user);
-
         return newState;
     }
 
@@ -56,7 +60,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User registerUser(UserDTO userDTO) {
+    public User registerUser(UserDTO userDTO, String verificationCode) {
         if (userRepository.existsByEmail(userDTO.getEmail())) {
             throw new UserAlreadyExistsException("Użytkownik z podanym e-mailem już istnieje.");
         }
@@ -68,12 +72,8 @@ public class UserServiceImpl implements UserService {
         newUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         newUser.setType(UserType.USER);
         newUser.setStatus(UserState.INACTIVE);
+        newUser.setVerificationCode(verificationCode);
 
-        User savedUser = userRepository.save(newUser);
-
-        emailService.sendVerificationCode(savedUser.getEmail(), EmailCodeGenerator.generateCode().getCode());
-
-        return savedUser;
+        return userRepository.save(newUser);
     }
-
 }
