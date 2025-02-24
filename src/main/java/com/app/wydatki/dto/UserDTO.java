@@ -20,6 +20,8 @@ public class UserDTO implements Serializable {
     private String login;
     private UserState status;
     private UserType userType;
+    private String verificationCode;
+
 
 
 }
