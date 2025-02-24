@@ -67,5 +67,8 @@ public class User {
     @Basic
     @Column(name="type",nullable = false, length = 15)
     private UserType type;
+    @Basic
+    @Column(name="verification_code")
+    private String verificationCode;
 
 }

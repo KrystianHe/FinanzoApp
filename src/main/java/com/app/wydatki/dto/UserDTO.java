@@ -14,12 +14,14 @@ public class UserDTO implements Serializable {
 
     private Long id;
     private String name;
-    private String getPassword;
+    private String password;
     private String lastname;
     private String email;
     private String login;
     private UserState status;
     private UserType userType;
+    private String verificationCode;
+
 
 
 }
