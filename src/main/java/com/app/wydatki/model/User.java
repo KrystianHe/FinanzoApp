@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity(name = "User")
@@ -70,5 +71,8 @@ public class User {
     @Basic
     @Column(name="verification_code")
     private String verificationCode;
+    @Basic
+    @Column(name="verification_code_expiration")
+    private LocalDateTime verificationCodeExpiration;
 
 }
