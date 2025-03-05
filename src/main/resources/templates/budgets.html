@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budżety - Wydatki</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Budżety</h1>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBudgetModal">
+                <i class="bi bi-plus-circle"></i> Dodaj budżet
+            </button>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Wszystkie budżety</h5>
+                        <h2 class="card-text" th:text="${budgets.size()}">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Aktywne budżety</h5>
+                        <h2 class="card-text" th:text="${budgets.?[isActive() == true].size()}">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Nadchodzące budżety</h5>
+                        <h2 class="card-text" th:text="${budgets.?[startDate > T(java.time.LocalDate).now()].size()}">0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="budgetTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">Wszystkie</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab" aria-controls="active" aria-selected="false">Aktywne</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab" aria-controls="upcoming" aria-selected="false">Nadchodzące</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab" aria-controls="past" aria-selected="false">Zakończone</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="budgetTabsContent">
+                    <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                        <div th:replace="~{:: #budgetTable(${budgets})}"></div>
+                    </div>
+                    <div class="tab-pane fade" id="active" role="tabpanel" aria-labelledby="active-tab">
+                        <div th:replace="~{:: #budgetTable(${budgets.?[isActive() == true]})}"></div>
+                    </div>
+                    <div class="tab-pane fade" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
+                        <div th:replace="~{:: #budgetTable(${budgets.?[startDate > T(java.time.LocalDate).now()]})}"></div>
+                    </div>
+                    <div class="tab-pane fade" id="past" role="tabpanel" aria-labelledby="past-tab">
+                        <div th:replace="~{:: #budgetTable(${budgets.?[endDate < T(java.time.LocalDate).now()]})}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabela budżetów (fragment) -->
+        <div th:id="budgetTable" th:fragment="budgetTable(budgetList)">
+            <div th:if="${budgetList.empty}" class="text-center py-5">
+                <p class="text-muted">Brak budżetów do wyświetlenia</p>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBudgetModal">
+                    Dodaj budżet
+                </button>
+            </div>
+            <div th:unless="${budgetList.empty}" class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nazwa</th>
+                            <th>Kategoria</th>
+                            <th>Kwota</th>
+                            <th>Wydano</th>
+                            <th>Pozostało</th>
+                            <th>Okres</th>
+                            <th>Status</th>
+                            <th>Akcje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="budget : ${budgetList}">
+                            <td th:text="${budget.name}">Nazwa budżetu</td>
+                            <td th:text="${budget.category}">Kategoria</td>
+                            <td th:text="${budget.amount}">1000 zł</td>
+                            <td th:text="${budget.spentAmount}">500 zł</td>
+                            <td th:text="${budget.remainingAmount}">500 zł</td>
+                            <td th:text="${#temporals.format(budget.startDate, 'dd.MM.yyyy') + ' - ' + #temporals.format(budget.endDate, 'dd.MM.yyyy')}">01.01.2025 - 31.01.2025</td>
+                            <td>
+                                <span th:if="${budget.isActive()}" class="badge bg-success">Aktywny</span>
+                                <span th:if="${budget.startDate > T(java.time.LocalDate).now()}" class="badge bg-info">Nadchodzący</span>
+                                <span th:if="${budget.endDate < T(java.time.LocalDate).now()}" class="badge bg-secondary">Zakończony</span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" th:data-budget-id="${budget.id}" onclick="editBudget(this.getAttribute('data-budget-id'))">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" th:data-budget-id="${budget.id}" onclick="deleteBudget(this.getAttribute('data-budget-id'))">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Modal dodawania budżetu -->
+        <div class="modal fade" id="addBudgetModal" tabindex="-1" aria-labelledby="addBudgetModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addBudgetModalLabel">Dodaj nowy budżet</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addBudgetForm" th:action="@{/api/budgets}" method="post">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Nazwa budżetu</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Kwota</label>
+                                <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Kategoria</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="" selected disabled>Wybierz kategorię</option>
+                                    <option th:each="category : ${categories}" th:value="${category}" th:text="${category}">Kategoria</option>
+                                </select>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="startDate" class="form-label">Data początkowa</label>
+                                    <input type="date" class="form-control" id="startDate" name="startDate" required>
+                                </div>
+                                <div class="col">
+                                    <label for="endDate" class="form-label">Data końcowa</label>
+                                    <input type="date" class="form-control" id="endDate" name="endDate" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Opis (opcjonalnie)</label>
+                                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                        <button type="submit" form="addBudgetForm" class="btn btn-primary">Dodaj</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script th:inline="javascript">
+            // Ustawienie dzisiejszej daty jako domyślnej dla daty początkowej
+            document.addEventListener('DOMContentLoaded', function() {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('startDate').value = today;
+                
+                // Ustawienie daty końcowej na koniec miesiąca
+                const endOfMonth = new Date();
+                endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+                endOfMonth.setDate(0);
+                document.getElementById('endDate').value = endOfMonth.toISOString().split('T')[0];
+            });
+            
+            function editBudget(budgetId) {
+                // Implementacja edycji budżetu
+                window.location.href = `/api/budgets/${budgetId}`;
+            }
+            
+            function deleteBudget(budgetId) {
+                if (confirm('Czy na pewno chcesz usunąć ten budżet?')) {
+                    fetch(`/api/budgets/${budgetId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            alert('Wystąpił błąd podczas usuwania budżetu.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Błąd:', error);
+                        alert('Wystąpił błąd podczas usuwania budżetu.');
+                    });
+                }
+            }
+        </script>
+    </div>
+</body>
+</html> 
