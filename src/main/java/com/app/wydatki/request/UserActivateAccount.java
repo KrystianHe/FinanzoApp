@@ -1,9 +1,13 @@
 package com.app.wydatki.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserActivateAccount {
-    public String email;
-    public String verificationCode;
+    private String email;
+    private String verificationCode;
 }

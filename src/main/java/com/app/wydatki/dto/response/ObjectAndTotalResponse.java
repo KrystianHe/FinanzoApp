@@ -3,7 +3,7 @@ package com.app.wydatki.dto.response;
 import lombok.Builder;
 import lombok.Value;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 @Builder(toBuilder = true)
 @Value

@@ -15,4 +15,6 @@ public class JwtAuthenticationResponseDTO {
 
     private Long userId;
 
+    public JwtAuthenticationResponseDTO(String token) {
+    }
 }
