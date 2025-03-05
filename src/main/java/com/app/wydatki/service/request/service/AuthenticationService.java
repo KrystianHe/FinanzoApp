@@ -7,5 +7,4 @@ import com.app.wydatki.dto.response.JwtAuthenticationResponseDTO;
 public interface AuthenticationService {
     JwtAuthenticationResponseDTO signin(LoginDTO request);
 
-    JwtAuthenticationResponseDTO loginApp(LoginDTO request);
 }
