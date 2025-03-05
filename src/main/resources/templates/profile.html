@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - Wydatki</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <h1 class="mb-4">Profil użytkownika</h1>
+        
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Informacje o koncie</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="avatar-placeholder rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                                <span sec:authentication="name" th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">U</span>
+                            </div>
+                            <h4 sec:authentication="name">user@example.com</h4>
+                        </div>
+                        
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Status konta</span>
+                                <span class="badge bg-success">Aktywne</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Data rejestracji</span>
+                                <span>01.01.2025</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>Ostatnia zmiana hasła</span>
+                                <span>01.01.2025</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Dane osobowe</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="profileForm" th:action="@{/api/users/me}" method="post">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">Imię</label>
+                                    <input type="text" class="form-control" id="name" name="name" value="Jan">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lastname" class="form-label">Nazwisko</label>
+                                    <input type="text" class="form-control" id="lastname" name="lastname" value="Kowalski">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" value="user@example.com" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="dateOfBirth" class="form-label">Data urodzenia</label>
+                                <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" value="1990-01-01">
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Zmiana hasła</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="passwordForm" th:action="@{/api/users/me/password}" method="post">
+                            <div class="mb-3">
+                                <label for="currentPassword" class="form-label">Obecne hasło</label>
+                                <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="newPassword" class="form-label">Nowe hasło</label>
+                                <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Potwierdź nowe hasło</label>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Zmień hasło</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Preferencje</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="preferencesForm" th:action="@{/api/users/me/preferences}" method="post">
+                            <div class="mb-3">
+                                <label for="defaultCurrency" class="form-label">Domyślna waluta</label>
+                                <select class="form-select" id="defaultCurrency" name="defaultCurrency">
+                                    <option value="PLN" selected>Polski złoty (PLN)</option>
+                                    <option value="EUR">Euro (EUR)</option>
+                                    <option value="USD">Dolar amerykański (USD)</option>
+                                    <option value="GBP">Funt brytyjski (GBP)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="dateFormat" class="form-label">Format daty</label>
+                                <select class="form-select" id="dateFormat" name="dateFormat">
+                                    <option value="dd.MM.yyyy" selected>DD.MM.RRRR</option>
+                                    <option value="yyyy-MM-dd">RRRR-MM-DD</option>
+                                    <option value="MM/dd/yyyy">MM/DD/RRRR</option>
+                                </select>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="emailNotifications" name="emailNotifications" checked>
+                                <label class="form-check-label" for="emailNotifications">Powiadomienia email</label>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Zapisz preferencje</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-center">
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                Usuń konto
+            </button>
+        </div>
+        
+        <!-- Modal usuwania konta -->
+        <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteAccountModalLabel">Potwierdź usunięcie konta</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-danger">Uwaga! Ta operacja jest nieodwracalna. Wszystkie Twoje dane zostaną trwale usunięte.</p>
+                        <p>Aby potwierdzić, wpisz swój adres email:</p>
+                        <input type="email" class="form-control" id="confirmEmail" placeholder="twój@email.com">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                        <button type="button" class="btn btn-danger" onclick="deleteAccount()">Usuń konto</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script th:inline="javascript">
+            function deleteAccount() {
+                const confirmEmail = document.getElementById('confirmEmail').value;
+                const userEmail = /*[[${#authentication.name}]]*/ 'user@example.com';
+                
+                if (confirmEmail !== userEmail) {
+                    alert('Podany email nie jest zgodny z Twoim adresem email.');
+                    return;
+                }
+                
+                fetch('/api/users/me', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/logout';
+                    } else {
+                        alert('Wystąpił błąd podczas usuwania konta.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Błąd:', error);
+                    alert('Wystąpił błąd podczas usuwania konta.');
+                });
+            }
+            
+            // Walidacja formularza zmiany hasła
+            document.getElementById('passwordForm').addEventListener('submit', function(event) {
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (newPassword !== confirmPassword) {
+                    event.preventDefault();
+                    alert('Hasła nie są identyczne.');
+                }
+            });
+        </script>
+    </div>
+</body>
+</html> 

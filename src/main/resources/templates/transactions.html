@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transakcje - Wydatki</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Transakcje</h1>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                <i class="bi bi-plus-circle"></i> Dodaj transakcję
+            </button>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Wszystkie transakcje</h5>
+                        <h2 class="card-text" th:text="${transactions.size()}">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Przychody</h5>
+                        <h2 class="card-text" th:text="${transactions.?[amount > 0].size()}">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Wydatki</h5>
+                        <h2 class="card-text" th:text="${transactions.?[amount < 0].size()}">0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Filtruj transakcje</h5>
+            </div>
+            <div class="card-body">
+                <form id="filterForm" class="row g-3" th:action="@{/api/transactions/filter}" method="post">
+                    <div class="col-md-3">
+                        <label for="startDate" class="form-label">Od daty</label>
+                        <input type="date" class="form-control" id="filterStartDate" name="startDate">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="endDate" class="form-label">Do daty</label>
+                        <input type="date" class="form-control" id="filterEndDate" name="endDate">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">Kategoria</label>
+                        <select class="form-select" id="filterCategory" name="category">
+                            <option value="">Wszystkie kategorie</option>
+                            <option th:each="category : ${categories}" th:value="${category}" th:text="${category}">Kategoria</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="type" class="form-label">Typ</label>
+                        <select class="form-select" id="filterType" name="type">
+                            <option value="">Wszystkie typy</option>
+                            <option value="INCOME">Przychód</option>
+                            <option value="EXPENSE">Wydatek</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="minAmount" class="form-label">Minimalna kwota</label>
+                        <input type="number" class="form-control" id="filterMinAmount" name="minAmount" step="0.01">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="maxAmount" class="form-label">Maksymalna kwota</label>
+                        <input type="number" class="form-control" id="filterMaxAmount" name="maxAmount" step="0.01">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="description" class="form-label">Opis zawiera</label>
+                        <input type="text" class="form-control" id="filterDescription" name="description">
+                    </div>
+                    <div class="col-12 text-end">
+                        <button type="reset" class="btn btn-secondary">Wyczyść</button>
+                        <button type="submit" class="btn btn-primary">Filtruj</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Lista transakcji</h5>
+            </div>
+            <div class="card-body">
+                <div th:if="${transactions.empty}" class="text-center py-5">
+                    <p class="text-muted">Brak transakcji do wyświetlenia</p>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTransactionModal">
+                        Dodaj transakcję
+                    </button>
+                </div>
+                <div th:unless="${transactions.empty}" class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Opis</th>
+                                <th>Kategoria</th>
+                                <th>Kwota</th>
+                                <th>Typ</th>
+                                <th>Akcje</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="transaction : ${transactions}">
+                                <td th:text="${#temporals.format(transaction.date, 'dd.MM.yyyy')}">01.01.2025</td>
+                                <td th:text="${transaction.description}">Opis transakcji</td>
+                                <td th:text="${transaction.category}">Kategoria</td>
+                                <td th:text="${transaction.amount}">100 zł</td>
+                                <td>
+                                    <span th:if="${transaction.amount > 0}" class="badge bg-success">Przychód</span>
+                                    <span th:if="${transaction.amount < 0}" class="badge bg-danger">Wydatek</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" th:data-transaction-id="${transaction.id}" onclick="editTransaction(this.getAttribute('data-transaction-id'))">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" th:data-transaction-id="${transaction.id}" onclick="deleteTransaction(this.getAttribute('data-transaction-id'))">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal dodawania transakcji -->
+        <div class="modal fade" id="addTransactionModal" tabindex="-1" aria-labelledby="addTransactionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addTransactionModalLabel">Dodaj nową transakcję</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addTransactionForm" th:action="@{/api/transactions}" method="post">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Opis</label>
+                                <input type="text" class="form-control" id="description" name="description" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Kwota</label>
+                                <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+                                <div class="form-text">Wpisz wartość ujemną dla wydatków, dodatnią dla przychodów.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Kategoria</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="" selected disabled>Wybierz kategorię</option>
+                                    <option th:each="category : ${categories}" th:value="${category}" th:text="${category}">Kategoria</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="date" class="form-label">Data</label>
+                                <input type="date" class="form-control" id="date" name="date" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Notatki (opcjonalnie)</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                        <button type="submit" form="addTransactionForm" class="btn btn-primary">Dodaj</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script th:inline="javascript">
+            // Ustawienie dzisiejszej daty jako domyślnej
+            document.addEventListener('DOMContentLoaded', function() {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('date').value = today;
+                
+                // Ustawienie dat dla filtrów (ostatni miesiąc)
+                const lastMonth = new Date();
+                lastMonth.setMonth(lastMonth.getMonth() - 1);
+                document.getElementById('filterStartDate').value = lastMonth.toISOString().split('T')[0];
+                document.getElementById('filterEndDate').value = today;
+            });
+            
+            function editTransaction(transactionId) {
+                // Implementacja edycji transakcji
+                window.location.href = `/api/transactions/${transactionId}`;
+            }
+            
+            function deleteTransaction(transactionId) {
+                if (confirm('Czy na pewno chcesz usunąć tę transakcję?')) {
+                    fetch(`/api/transactions/${transactionId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            alert('Wystąpił błąd podczas usuwania transakcji.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Błąd:', error);
+                        alert('Wystąpił błąd podczas usuwania transakcji.');
+                    });
+                }
+            }
+        </script>
+    </div>
+</body>
+</html> 
