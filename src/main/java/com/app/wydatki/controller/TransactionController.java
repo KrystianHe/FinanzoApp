@@ -6,6 +6,7 @@ import com.app.wydatki.model.Transaction;
 import com.app.wydatki.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -130,5 +131,46 @@ public class TransactionController {
             @RequestBody TransactionFilterDTO filterDTO) {
         return ResponseEntity.ok(transactionService.filterTransactions(
                 userDetails.getUsername(), filterDTO));
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<Transaction>> getPaginatedTransactions(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortDirection) {
+        
+        TransactionFilterDTO filterDTO = new TransactionFilterDTO();
+        filterDTO.setPage(page != null ? page : 0);
+        filterDTO.setSize(size != null ? size : 10);
+        filterDTO.setSearchTerm(search);
+        filterDTO.setCategory(category);
+        filterDTO.setType(type);
+        filterDTO.setStartDate(dateFrom);
+        filterDTO.setEndDate(dateTo);
+        filterDTO.setSortBy(sortBy);
+        filterDTO.setSortDirection(sortDirection);
+        
+        Page<Transaction> transactions = transactionService.getPaginatedTransactions(
+                userDetails.getUsername(), filterDTO);
+                
+        return ResponseEntity.ok(transactions);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportTransactions(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        byte[] csvData = transactionService.exportTransactionsToCSV(userDetails.getUsername());
+        
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=transactions.csv")
+                .header("Content-Type", "text/csv")
+                .body(csvData);
     }
 }

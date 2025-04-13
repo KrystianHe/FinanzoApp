@@ -3,6 +3,7 @@ package com.app.wydatki.service;
 import com.app.wydatki.dto.TransactionDTO;
 import com.app.wydatki.dto.fiilter.TransactionFilterDTO;
 import com.app.wydatki.model.Transaction;
+import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -37,4 +38,21 @@ public interface TransactionService {
     List<Transaction> getTransactionsExcludingCategory(String userEmail, LocalDate startDate, LocalDate endDate, String excludedCategory);
 
     List<Transaction> filterTransactions(String userEmail, TransactionFilterDTO filterDTO);
+    
+    /**
+     * Pobiera paginowaną listę transakcji na podstawie filtrów
+     * 
+     * @param userEmail email użytkownika
+     * @param filterDTO obiekt zawierający filtry, sortowanie i parametry paginacji
+     * @return obiekt Page zawierający wyniki oraz metadane paginacji
+     */
+    Page<Transaction> getPaginatedTransactions(String userEmail, TransactionFilterDTO filterDTO);
+    
+    /**
+     * Eksportuje wszystkie transakcje użytkownika do formatu CSV
+     * 
+     * @param userEmail email użytkownika
+     * @return tablica bajtów zawierająca dane CSV
+     */
+    byte[] exportTransactionsToCSV(String userEmail);
 }

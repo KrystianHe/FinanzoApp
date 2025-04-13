@@ -39,4 +39,9 @@ public interface UserService {
     Map<String, String> updateUserPreferences(String email, Map<String, String> preferences);
 
     void resendVerificationCode(String email) throws VerificationException;
+
+    // Metody dla dwuetapowej weryfikacji
+    void saveVerificationCode(String email, String code);
+    boolean verifyCode(String email, String code);
+    void clearVerificationCode(String email);
 }

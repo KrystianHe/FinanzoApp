@@ -21,6 +21,7 @@ public class TransactionFilterDTO {
     private BigDecimal maxAmount;
     private List<String> categories;
     private String category;
+    private String type; // INCOME, EXPENSE
     private String searchTerm;
     private String sortBy;
     private String sortDirection;

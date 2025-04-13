@@ -6,11 +6,19 @@ import com.app.wydatki.model.Transaction;
 import com.app.wydatki.repository.TransactionRepository;
 import com.app.wydatki.repository.UserRepository;
 import com.app.wydatki.service.TransactionService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -116,12 +124,93 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<Transaction> getTransactionsExcludingCategory(String userEmail, LocalDate startDate, LocalDate endDate, String excludedCategory) {
-        return transactionRepository.findFilteredTransactions(userEmail, startDate, endDate, excludedCategory, BigDecimal.ZERO, BigDecimal.ZERO);
+        return transactionRepository.findTransactionsExcludingCategory(userEmail, startDate, endDate, excludedCategory);
     }
 
 
     @Override
     public List<Transaction> filterTransactions(String userEmail, TransactionFilterDTO filterDTO) {
         return transactionRepository.findFilteredTransactionsByDTO(userEmail, filterDTO);
+    }
+    
+    @Override
+    public Page<Transaction> getPaginatedTransactions(String userEmail, TransactionFilterDTO filterDTO) {
+        // Ustawienie wartości domyślnych dla paginacji
+        int page = filterDTO.getPage() != null ? filterDTO.getPage() : 0;
+        int size = filterDTO.getSize() != null ? filterDTO.getSize() : 10;
+        
+        // Ustawienie sortowania
+        Pageable pageable;
+        if (filterDTO.getSortBy() != null && !filterDTO.getSortBy().isEmpty()) {
+            Sort.Direction direction = Sort.Direction.DESC; // Domyślnie malejąco
+            if (filterDTO.getSortDirection() != null && filterDTO.getSortDirection().equalsIgnoreCase("asc")) {
+                direction = Sort.Direction.ASC;
+            }
+            
+            pageable = PageRequest.of(page, size, Sort.by(direction, filterDTO.getSortBy()));
+        } else {
+            // Domyślnie sortowanie po dacie malejąco
+            pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "date"));
+        }
+        
+        // Pobieranie paginowanych danych
+        // Zakładam, że mamy odpowiednią metodę w repozytorium - jeśli nie, trzeba ją dodać
+        return transactionRepository.findPaginatedTransactions(
+                userEmail, 
+                filterDTO.getStartDate(),
+                filterDTO.getEndDate(),
+                filterDTO.getCategory(),
+                filterDTO.getType(),
+                filterDTO.getSearchTerm(),
+                filterDTO.getMinAmount(),
+                filterDTO.getMaxAmount(),
+                pageable
+        );
+    }
+    
+    @Override
+    public byte[] exportTransactionsToCSV(String userEmail) {
+        List<Transaction> transactions = transactionRepository.findByUserEmail(userEmail);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        
+        try (PrintWriter pw = new PrintWriter(baos)) {
+            // Nagłówki CSV
+            pw.println("ID,Data,Nazwa,Kwota,Kategoria,Typ,Opis");
+            
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            
+            // Dane
+            for (Transaction transaction : transactions) {
+                pw.println(String.join(",",
+                        String.valueOf(transaction.getId()),
+                        transaction.getDate().format(dateFormatter),
+                        escapeCSV(transaction.getName()),
+                        transaction.getAmount().toString(),
+                        escapeCSV(transaction.getCategory()),
+                        transaction.getType().toString(),
+                        escapeCSV(transaction.getDescription() != null ? transaction.getDescription() : "")
+                ));
+            }
+            
+            pw.flush();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Błąd podczas eksportu danych do CSV", e);
+        }
+    }
+    
+    /**
+     * Metoda pomocnicza do escapowania pól CSV
+     */
+    private String escapeCSV(String value) {
+        if (value == null) {
+            return "";
+        }
+        // Jeśli zawiera przecinek, cudzysłów lub znak nowej linii - należy zamknąć w cudzysłowach
+        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
+            // Podwajamy cudzysłowy wewnątrz pola
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
     }
 }

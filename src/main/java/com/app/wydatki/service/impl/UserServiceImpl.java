@@ -6,7 +6,7 @@ import com.app.wydatki.exceptions.UserAlreadyExistsException;
 import com.app.wydatki.model.User;
 import com.app.wydatki.repository.UserRepository;
 import com.app.wydatki.request.UserActivateAccount;
-import com.app.wydatki.service.email.EmailService;
+import com.app.wydatki.service.SendEmailService;
 import com.app.wydatki.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.common.VerificationException;
@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService;
+    private final SendEmailService sendEmailService;
 
     @Override
     @Transactional
@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(user);
         
-        emailService.sendVerificationEmail(savedUser.getEmail(), savedUser.getVerificationCode());
+        sendEmailService.sendVerificationCode(savedUser.getEmail(), savedUser.getVerificationCode());
         
         return savedUser;
     }
@@ -144,7 +144,9 @@ public class UserServiceImpl implements UserService {
         user.setResetPasswordTokenExpiry(LocalDateTime.now().plusHours(24));
         userRepository.save(user);
 
-        emailService.sendPasswordResetEmail(email, resetToken);
+        sendEmailService.sendEmail(email, "Resetowanie hasła", "Aby zresetować hasło, kliknij w poniższy link:\n" +
+                       "http://localhost:8080/reset-password?token=" + resetToken + "\n" +
+                       "Link jest ważny przez 24 godziny.");
     }
 
     @Override
@@ -203,7 +205,45 @@ public class UserServiceImpl implements UserService {
         user.setVerificationCodeExpiration(LocalDateTime.now().plusHours(24));
         userRepository.save(user);
 
-        emailService.resendVerificationCode(user.getEmail(), newVerificationCode);
+        sendEmailService.sendVerificationCode(user.getEmail(), newVerificationCode);
+    }
+
+    @Override
+    @Transactional
+    public void saveVerificationCode(String email, String code) {
+        User user = findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        
+        user.setVerificationCode(code);
+        user.setVerificationCodeExpiration(LocalDateTime.now().plusMinutes(10)); // Kod ważny przez 10 minut
+        userRepository.save(user);
+    }
+    
+    @Override
+    public boolean verifyCode(String email, String code) {
+        User user = findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        
+        if (user.getVerificationCode() == null || user.getVerificationCodeExpiration() == null) {
+            return false;
+        }
+        
+        if (user.getVerificationCodeExpiration().isBefore(LocalDateTime.now())) {
+            return false; // Kod wygasł
+        }
+        
+        return user.getVerificationCode().equals(code);
+    }
+    
+    @Override
+    @Transactional
+    public void clearVerificationCode(String email) {
+        User user = findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        
+        user.setVerificationCode(null);
+        user.setVerificationCodeExpiration(null);
+        userRepository.save(user);
     }
 
     private String generateVerificationCode() {

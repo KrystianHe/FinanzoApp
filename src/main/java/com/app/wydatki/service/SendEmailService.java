@@ -16,14 +16,17 @@ public class SendEmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(SendEmailService.class);
 
-    @Value("${sendgrid.api.key}")
+    @Value("${sendgrid.api-key}")
     private String sendGridApiKey;
 
     @Value("${sendgrid.from.email}")
     private String fromEmail;
 
+    @Value("${sendgrid.from.name}")
+    private String fromName;
+
     public void sendEmail(String to, String subject, String content) {
-        Email from = new Email(fromEmail);
+        Email from = new Email(fromEmail, fromName);
         Email toEmail = new Email(to);
         Content emailContent = new Content("text/plain", content);
         Mail mail = new Mail(from, subject, toEmail, emailContent);
