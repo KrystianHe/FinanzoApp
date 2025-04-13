@@ -157,7 +157,6 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Override
     public List<Budget> getBudgetsByCategory(String userEmail, String category) {
-        // TODO: Implement when category field is added to Budget entity
         throw new UnsupportedOperationException("Not implemented yet");
     }
 } 
