@@ -30,5 +30,8 @@ public class UserDTO {
     @NotBlank(message = "Nazwisko jest wymagane")
     private String lastName;
 
+    @NotBlank(message = "Data urodzenia jest wymagana")
+    private String dateOfBirth;
+
     private String status;
 } 

@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -26,14 +27,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Nazwa nie może być pusta.")
+    @NotNull(message = "Imię nie może być puste.")
     @Basic
-    @Column(name = "login", nullable = false, length = 100)
-    private String name;
+    @Column(name = "first_name", nullable = false, length = 100)
+    private String firstName;
 
+    @NotNull(message = "Nazwisko nie może być puste.")
     @Basic
-    @Column(name = "lastname", nullable = false, length = 100)
-    private String lastname;
+    @Column(name = "last_name", nullable = false, length = 100)
+    private String lastName;
 
     @Basic
     @Column(name = "password", nullable = false, length = 100)
@@ -41,7 +43,7 @@ public class User {
 
     @Basic
     @Column(name = "date_of_birth", nullable = false)
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Basic
     @Column(name = "created_at", nullable = false)

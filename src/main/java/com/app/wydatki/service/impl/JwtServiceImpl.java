@@ -23,8 +23,8 @@ public class JwtServiceImpl implements JwtService {
     @Value("${security.jwt.secret}")
     private String jwtSigningKey;
 
-    @Value("${security.jwt.expirationInSeconds}")
-    private Integer expirationInSeconds;
+    @Value("${security.jwt.expiration}")
+    private Long expiration;
 
     @Override
     public String extractUsername(String token) {
@@ -72,7 +72,7 @@ public class JwtServiceImpl implements JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * expirationInSeconds))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

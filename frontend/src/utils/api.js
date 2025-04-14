@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Konfiguracja bazowa axios
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -195,7 +195,7 @@ export const authService = {
   // Logowanie
   login: async (credentials) => {
     try {
-      const response = await axios.post('/api/auth/login', credentials);
+      const response = await api.post('/auth/login', credentials);
       return response.data;
     } catch (error) {
       console.error('Błąd podczas logowania:', error);
@@ -206,7 +206,7 @@ export const authService = {
   // Rejestracja
   register: async (userData) => {
     try {
-      const response = await axios.post('/api/auth/register', userData);
+      const response = await api.post('/auth/register', userData);
       return response.data;
     } catch (error) {
       console.error('Błąd podczas rejestracji:', error);
@@ -217,7 +217,7 @@ export const authService = {
   // Aktywacja konta
   activateAccount: async (activationData) => {
     try {
-      const response = await axios.post('/api/auth/activate', activationData);
+      const response = await api.post('/auth/activate', activationData);
       return response.data;
     } catch (error) {
       console.error('Błąd podczas aktywacji konta:', error);
@@ -228,7 +228,7 @@ export const authService = {
   // Weryfikacja kodu
   verifyCode: async (verificationData) => {
     try {
-      const response = await axios.post('/api/auth/verify', verificationData);
+      const response = await api.post('/auth/verify', verificationData);
       return response.data;
     } catch (error) {
       console.error('Błąd podczas weryfikacji kodu:', error);
@@ -239,7 +239,7 @@ export const authService = {
   // Ponowne wysłanie kodu weryfikacyjnego
   resendCode: async (token) => {
     try {
-      const response = await axios.post(`/api/auth/resend-code?token=${token}`);
+      const response = await api.post(`/auth/resend-code?token=${token}`);
       return response.data;
     } catch (error) {
       console.error('Błąd podczas wysyłania kodu weryfikacyjnego:', error);
