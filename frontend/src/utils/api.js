@@ -1,5 +1,47 @@
 import axios from 'axios';
 
+// Funkcje pomocnicze do zarządzania tokenami
+const getToken = () => localStorage.getItem('token');
+const getRefreshToken = () => localStorage.getItem('refreshToken');
+const setTokens = (token, refreshToken) => {
+  localStorage.setItem('token', token);
+  localStorage.setItem('refreshToken', refreshToken);
+};
+const removeTokens = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('refreshToken');
+};
+
+// Utwórz instancję do odświeżania tokenów (bez interceptorów, aby uniknąć nieskończonej pętli)
+const refreshApi = axios.create({
+  baseURL: 'http://localhost:8080/api',
+  headers: {
+    'Content-Type': 'application/json',
+  }
+});
+
+// Funkcja do odświeżania tokenu
+const refreshToken = async () => {
+  try {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) {
+      throw new Error('Brak tokenu odświeżającego');
+    }
+    
+    const response = await refreshApi.post('/auth/refresh-token', { refreshToken });
+    const { token, refreshToken: newRefreshToken } = response.data;
+    
+    // Zapisz nowe tokeny
+    setTokens(token, newRefreshToken);
+    return token;
+  } catch (error) {
+    // W przypadku błędu odświeżania, wyloguj użytkownika
+    removeTokens();
+    window.location.href = '/login';
+    throw error;
+  }
+};
+
 // Konfiguracja bazowa axios
 const api = axios.create({
   baseURL: 'http://localhost:8080/api',
@@ -11,7 +53,7 @@ const api = axios.create({
 // Dodajemy interceptor, który będzie dodawał token JWT z localStorage do każdego zapytania
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -20,17 +62,73 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Flaga informująca, czy trwa odświeżanie tokenu
+let isRefreshing = false;
+// Kolejka opóźnionych żądań czekających na nowy token
+let refreshSubscribers = [];
+
+// Funkcja do odświeżania tokenu i ponawiania nieudanych żądań
+const onRefreshed = (token) => {
+  refreshSubscribers.forEach(callback => callback(token));
+  refreshSubscribers = [];
+};
+
+// Funkcja do dodawania żądań do kolejki oczekujących
+const addRefreshSubscriber = (callback) => {
+  refreshSubscribers.push(callback);
+};
+
 // Dodajemy interceptor dla odpowiedzi, aby obsługiwał błędy autoryzacji (401)
 api.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Jeśli otrzymamy błąd 401, wylogowujemy użytkownika
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // Jeśli błąd 401 i żądanie nie jest żądaniem odświeżenia tokenu i nie było już ponawiane
+    if (error.response && error.response.status === 401 && 
+        !originalRequest._retry && 
+        !originalRequest.url.includes('auth/refresh-token')) {
+      
+      // Oznaczamy, że żądanie jest już ponawiane
+      originalRequest._retry = true;
+      
+      // Jeśli nie trwa jeszcze odświeżanie tokenu, zainicjuj je
+      if (!isRefreshing) {
+        isRefreshing = true;
+        
+        try {
+          // Odśwież token
+          const newToken = await refreshToken();
+          
+          // Powiadom oczekujące żądania o nowym tokenie
+          onRefreshed(newToken);
+          
+          // Zaktualizuj nagłówek autoryzacji w oryginalnym żądaniu
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          
+          // Ponów oryginalne żądanie
+          return api(originalRequest);
+        } catch (refreshError) {
+          // Jeśli odświeżanie nie powiodło się, wyloguj użytkownika
+          removeTokens();
+          window.location.href = '/login';
+          return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
+        }
+      } else {
+        // Jeśli odświeżanie tokenu już trwa, dodaj oryginalne żądanie do kolejki
+        return new Promise((resolve) => {
+          addRefreshSubscriber((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            resolve(api(originalRequest));
+          });
+        });
+      }
     }
+    
     return Promise.reject(error);
   }
 );
@@ -196,6 +294,8 @@ export const authService = {
   login: async (credentials) => {
     try {
       const response = await api.post('/auth/login', credentials);
+      // Zapisz oba tokeny w localStorage
+      setTokens(response.data.token, response.data.refreshToken);
       return response.data;
     } catch (error) {
       console.error('Błąd podczas logowania:', error);
@@ -237,9 +337,9 @@ export const authService = {
   },
   
   // Ponowne wysłanie kodu weryfikacyjnego
-  resendCode: async (token) => {
+  resendCode: async (email) => {
     try {
-      const response = await api.post(`/auth/resend-code?token=${token}`);
+      const response = await api.post(`/auth/resend-code?email=${email}`);
       return response.data;
     } catch (error) {
       console.error('Błąd podczas wysyłania kodu weryfikacyjnego:', error);
@@ -249,8 +349,13 @@ export const authService = {
   
   // Wylogowanie
   logout: () => {
-    localStorage.removeItem('token');
+    removeTokens();
     window.location.href = '/login';
+  },
+  
+  // Sprawdzenie czy użytkownik jest zalogowany
+  isAuthenticated: () => {
+    return !!getToken();
   }
 };
 

@@ -257,6 +257,9 @@ const Register = () => {
       
       setSuccess(response.message);
       
+      // Zapisanie emaila do localStorage do użycia na stronie weryfikacji
+      localStorage.setItem('verificationEmail', formData.email);
+      
       // Resetowanie formularza
       setFormData({
         firstName: '',
@@ -267,10 +270,10 @@ const Register = () => {
         dateOfBirth: ''
       });
       
-      // Po 3 sekundach przekieruj na stronę logowania
+      // Przekierowanie do strony weryfikacji
       setTimeout(() => {
-        navigate('/login');
-      }, 3000);
+        navigate('/verify');
+      }, 2000);
       
     } catch (err) {
       setError(err.response?.data?.message || 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.');

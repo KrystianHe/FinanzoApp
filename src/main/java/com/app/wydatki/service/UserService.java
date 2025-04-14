@@ -1,9 +1,9 @@
 package com.app.wydatki.service;
 
 import com.app.wydatki.dto.UserDTO;
+import com.app.wydatki.dto.VerificationRequestDTO;
 import com.app.wydatki.enums.UserState;
 import com.app.wydatki.model.User;
-import com.app.wydatki.request.UserActivateAccount;
 import org.keycloak.common.VerificationException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +15,7 @@ public interface UserService {
     User registerUser(UserDTO userDTO);
     Optional<User> findByEmail(String email);
 
-    boolean activateUserAccount(UserActivateAccount userActivateAccount) throws VerificationException;
+    boolean activateUserAccount(VerificationRequestDTO verificationRequest) throws VerificationException;
 
     UserState updateUserStatus(String email, UserState userState);
 
@@ -44,4 +44,12 @@ public interface UserService {
     void saveVerificationCode(String email, String code);
     boolean verifyCode(String email, String code);
     void clearVerificationCode(String email);
+
+    void verifyUser(String token);
+
+    // Method to save a user entity
+    User saveUser(User user);
+    
+    // Method to generate a verification code
+    String generateVerificationCode();
 }

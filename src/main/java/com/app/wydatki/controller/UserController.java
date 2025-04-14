@@ -1,9 +1,9 @@
 package com.app.wydatki.controller;
 
 import com.app.wydatki.dto.UserDTO;
+import com.app.wydatki.dto.VerificationRequestDTO;
 import com.app.wydatki.enums.UserState;
 import com.app.wydatki.model.User;
-import com.app.wydatki.request.UserActivateAccount;
 import com.app.wydatki.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,16 +65,18 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @PostMapping("/activate-account")
-    public ResponseEntity<String> activateAccount(@RequestBody UserActivateAccount request) {
+    @PostMapping("/activate")
+    public ResponseEntity<?> activateAccount(@RequestBody VerificationRequestDTO request) {
         try {
             boolean activated = userService.activateUserAccount(request);
+            
             if (activated) {
-                return ResponseEntity.ok("Konto zostało aktywowane pomyślnie");
+                return ResponseEntity.ok("Konto zostało aktywowane pomyślnie.");
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nie udało się aktywować konta");
+                return ResponseEntity.badRequest().body("Nie udało się aktywować konta.");
             }
         } catch (Exception e) {
+            log.error("Error during account activation: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

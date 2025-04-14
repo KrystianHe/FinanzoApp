@@ -13,8 +13,8 @@ import jakarta.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class VerificationRequestDTO {
     @NotBlank
-    private String token;
+    private String email;
     
     @NotBlank
-    private String verificationCode;
+    private String code;
 } 

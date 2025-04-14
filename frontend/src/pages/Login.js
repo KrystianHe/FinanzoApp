@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { FaEnvelope, FaLock, FaSignInAlt, FaSpinner, FaCheck, FaRedo } from 'react-icons/fa';
-import axios from 'axios';
+import { authService } from '../utils/api';
 
 const LoginContainer = styled.div`
   display: flex;
@@ -198,20 +198,16 @@ const LoadingSpinner = styled(FaSpinner)`
 
 const Login = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1); // 1 = login, 2 = verification
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [token, setToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [info, setInfo] = useState('');
   
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    setInfo('');
+    setSuccess('');
     
     if (!email || !password) {
       setError('Proszę wypełnić wszystkie pola.');
@@ -221,74 +217,24 @@ const Login = () => {
     try {
       setLoading(true);
       
-      const response = await axios.post('/api/auth/login', {
+      console.log('Próba logowania z danymi:', { email, password });
+      
+      const response = await authService.login({
         email,
         password
       });
       
-      // Zapisanie tymczasowego tokenu
-      setToken(response.data.token);
+      console.log('Odpowiedź z serwera:', response);
       
-      // Przejście do weryfikacji kodem
-      setStep(2);
-      setInfo(response.data.message);
-    } catch (err) {
-      setError('Nieprawidłowe dane logowania lub problem z serwerem.');
-      console.error('Błąd logowania:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const handleVerify = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    
-    if (!verificationCode) {
-      setError('Proszę wprowadzić kod weryfikacyjny.');
-      return;
-    }
-    
-    try {
-      setLoading(true);
+      // Token jest już zapisany w localStorage przez authService.login
       
-      const response = await axios.post('/api/auth/verify', {
-        token,
-        verificationCode
-      });
-      
-      // Zapisanie pełnego tokenu JWT
-      localStorage.setItem('token', response.data.token);
-      
-      // Powiadomienie o sukcesie
-      setSuccess('Logowanie zakończone sukcesem! Przekierowujemy...');
-      
-      // Przekierowanie do pulpitu po 2 sekundach
+      setSuccess('Logowanie zakończone sukcesem!');
       setTimeout(() => {
         navigate('/dashboard');
-      }, 2000);
+      }, 1000);
     } catch (err) {
-      setError('Nieprawidłowy kod weryfikacyjny lub problem z serwerem.');
-      console.error('Błąd weryfikacji:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const handleResendCode = async () => {
-    setError('');
-    setInfo('');
-    
-    try {
-      setLoading(true);
-      
-      const response = await axios.post(`/api/auth/resend-code?token=${token}`);
-      
-      setInfo(response.data.message);
-    } catch (err) {
-      setError('Nie udało się wysłać kodu weryfikacyjnego. Spróbuj ponownie.');
-      console.error('Błąd wysyłania kodu:', err);
+      console.error('Szczegóły błędu:', err.response?.data || err);
+      setError(err.response?.data?.message || 'Nieprawidłowe dane logowania lub problem z serwerem.');
     } finally {
       setLoading(false);
     }
@@ -298,81 +244,60 @@ const Login = () => {
     <LoginContainer>
       <LoginCard>
         <Logo>
-          <h1>MojeWydatki</h1>
-          <p>Zarządzaj swoimi finansami</p>
+          <h1>Wydatki</h1>
+          <p>Zaloguj się do swojego konta</p>
         </Logo>
         
-        {step === 1 ? (
-          <>
-            <FormTitle>Logowanie</FormTitle>
-            
-            {error && <ErrorMessage>{error}</ErrorMessage>}
-            
-            <form onSubmit={handleLogin}>
-              <FormGroup>
-                <InputGroup>
-                  <InputIcon>
-                    <FaEnvelope />
-                  </InputIcon>
-                  <Input
-                    type="email"
-                    placeholder="Adres email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </InputGroup>
-              </FormGroup>
-              
-              <FormGroup>
-                <InputGroup>
-                  <InputIcon>
-                    <FaLock />
-                  </InputIcon>
-                  <Input
-                    type="password"
-                    placeholder="Hasło"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </InputGroup>
-              </FormGroup>
-              
-              <Button type="submit" disabled={loading}>
-                {loading ? <LoadingSpinner /> : <FaSignInAlt />} Zaloguj się
-              </Button>
-            </form>
-          </>
-        ) : (
-          <>
-            <FormTitle>Weryfikacja</FormTitle>
-            
-            {error && <ErrorMessage>{error}</ErrorMessage>}
-            {info && <InfoMessage>{info}</InfoMessage>}
-            {success && <SuccessMessage>{success}</SuccessMessage>}
-            
-            <form onSubmit={handleVerify}>
-              <VerificationCodeContainer>
-                <VerificationCodeDescription>
-                  Wprowadź 6-cyfrowy kod weryfikacyjny, który został wysłany na Twój adres email.
-                </VerificationCodeDescription>
-                <VerificationCodeInput
-                  type="text"
-                  placeholder="------"
-                  maxLength="6"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').substring(0, 6))}
-                />
-                <ResendCodeLink type="button" onClick={handleResendCode} disabled={loading}>
-                  {loading ? <LoadingSpinner size="0.8em" /> : <FaRedo />} Wyślij kod ponownie
-                </ResendCodeLink>
-              </VerificationCodeContainer>
-              
-              <Button type="submit" disabled={loading}>
-                {loading ? <LoadingSpinner /> : <FaCheck />} Zweryfikuj
-              </Button>
-            </form>
-          </>
-        )}
+        <FormTitle>Logowanie</FormTitle>
+        
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+        {success && <SuccessMessage>{success}</SuccessMessage>}
+        
+        <form onSubmit={handleLogin}>
+          <FormGroup>
+            <InputGroup>
+              <InputIcon>
+                <FaEnvelope />
+              </InputIcon>
+              <Input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </InputGroup>
+          </FormGroup>
+          
+          <FormGroup>
+            <InputGroup>
+              <InputIcon>
+                <FaLock />
+              </InputIcon>
+              <Input
+                type="password"
+                placeholder="Hasło"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </InputGroup>
+          </FormGroup>
+          
+          <Button type="submit" disabled={loading}>
+            {loading ? (
+              <>
+                <LoadingSpinner />
+                Logowanie...
+              </>
+            ) : (
+              <>
+                <FaSignInAlt />
+                Zaloguj się
+              </>
+            )}
+          </Button>
+        </form>
       </LoginCard>
     </LoginContainer>
   );

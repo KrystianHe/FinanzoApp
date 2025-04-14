@@ -8,10 +8,11 @@ import Statistics from './pages/Statistics';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Welcome from './pages/Welcome';
+import VerifyAccount from './pages/VerifyAccount';
+import { authService } from './utils/api';
 
-// Komponent do sprawdzania, czy użytkownik jest zalogowany
 const RequireAuth = ({ children }) => {
-  const isAuthenticated = localStorage.getItem('token') !== null;
+  const isAuthenticated = authService.isAuthenticated();
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -30,6 +31,7 @@ function App() {
         {/* Publiczne ścieżki */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify" element={<VerifyAccount />} />
         
         {/* Zabezpieczone ścieżki */}
         <Route path="/dashboard" element={

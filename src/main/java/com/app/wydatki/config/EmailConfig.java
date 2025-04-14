@@ -1,44 +1,23 @@
 package com.app.wydatki.config;
 
+import com.sendgrid.SendGrid;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.beans.factory.annotation.Value;
-
-import java.util.Properties;
 
 @Configuration
 @Profile("!test")
 public class EmailConfig {
 
-    @Value("${spring.mail.host}")
-    private String mailHost;
-
-    @Value("${spring.mail.port}")
-    private int mailPort;
-
-    @Value("${spring.mail.username}")
-    private String mailUsername;
-
-    @Value("${spring.mail.password}")
-    private String mailPassword;
+    @Value("${sendgrid.api-key}")
+    private String sendGridApiKey;
 
     @Bean
-    public JavaMailSender javaMailSender() {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(mailHost);
-        mailSender.setPort(mailPort);
-        mailSender.setUsername(mailUsername);
-        mailSender.setPassword(mailPassword);
-
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "true");
-
-        return mailSender;
+    public SendGrid sendGrid() {
+        if (sendGridApiKey == null || sendGridApiKey.isEmpty()) {
+            throw new IllegalStateException("SendGrid API key is not configured");
+        }
+        return new SendGrid(sendGridApiKey);
     }
 } 

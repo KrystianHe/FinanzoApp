@@ -1,11 +1,13 @@
 package com.app.wydatki.service.impl;
 
 import com.app.wydatki.dto.UserDTO;
+import com.app.wydatki.dto.VerificationRequestDTO;
 import com.app.wydatki.enums.UserState;
-import com.app.wydatki.exceptions.UserAlreadyExistsException;
+import com.app.wydatki.enums.UserType;
 import com.app.wydatki.model.User;
+import com.app.wydatki.model.UserRole;
 import com.app.wydatki.repository.UserRepository;
-import com.app.wydatki.request.UserActivateAccount;
+import com.app.wydatki.repository.UserRoleRepository;
 import com.app.wydatki.service.email.EmailService;
 import com.app.wydatki.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,41 +31,87 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
     @Override
     @Transactional
     public User registerUser(UserDTO userDTO) {
-        log.info("Próba rejestracji użytkownika: {}", userDTO.getEmail());
-        
-        if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
-            log.error("Użytkownik o emailu {} już istnieje", userDTO.getEmail());
-            throw new UserAlreadyExistsException("Użytkownik o podanym emailu już istnieje.");
+        log.info("Attempting to register user with email: {}", userDTO.getEmail());
+        log.debug("Registration data: {}", userDTO);
+
+        // Validate required fields
+        if (userDTO.getFirstName() == null || userDTO.getFirstName().trim().isEmpty()) {
+            log.error("First name is required");
+            throw new IllegalArgumentException("First name is required");
+        }
+        if (userDTO.getLastName() == null || userDTO.getLastName().trim().isEmpty()) {
+            log.error("Last name is required");
+            throw new IllegalArgumentException("Last name is required");
+        }
+        if (userDTO.getEmail() == null || userDTO.getEmail().trim().isEmpty()) {
+            log.error("Email is required");
+            throw new IllegalArgumentException("Email is required");
+        }
+        if (userDTO.getPassword() == null || userDTO.getPassword().trim().isEmpty()) {
+            log.error("Password is required");
+            throw new IllegalArgumentException("Password is required");
+        }
+        if (userDTO.getDateOfBirth() == null || userDTO.getDateOfBirth().trim().isEmpty()) {
+            log.error("Date of birth is required");
+            throw new IllegalArgumentException("Date of birth is required");
+        }
+
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
+            log.warn("Registration failed - email already exists: {}", userDTO.getEmail());
+            throw new IllegalArgumentException("Email already exists");
         }
 
         try {
             User user = new User();
-            user.setEmail(userDTO.getEmail());
+            user.setFirstName(userDTO.getFirstName().trim());
+            user.setLastName(userDTO.getLastName().trim());
+            user.setEmail(userDTO.getEmail().trim());
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-            user.setFirstName(userDTO.getFirstName());
-            user.setLastName(userDTO.getLastName());
-            user.setDateOfBirth(LocalDate.parse(userDTO.getDateOfBirth()));
-            user.setStatus(UserState.INACTIVE);
-            user.setVerificationCode(generateVerificationCode());
-            user.setVerificationCodeExpiration(LocalDateTime.now().plusHours(24));
+            
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate dateOfBirth = LocalDate.parse(userDTO.getDateOfBirth(), formatter);
+            user.setDateOfBirth(dateOfBirth);
+            
             user.setCreatedAt(LocalDateTime.now());
+            user.setStatus(UserState.INACTIVE);
+            user.setType(UserType.USER);
+            user.setFailedLoginAttempts(0);
+            user.setEnabled(false);
+            
+            String verificationToken = UUID.randomUUID().toString();
+            user.setVerificationToken(verificationToken);
+            
+            String verificationCode = generateVerificationCode();
+            user.setVerificationCode(verificationCode);
+            user.setVerificationCodeExpiration(LocalDateTime.now().plusHours(24));
 
             User savedUser = userRepository.save(user);
-            log.info("Użytkownik zarejestrowany pomyślnie: {}", savedUser.getEmail());
+            log.info("User saved with ID: {}", savedUser.getId());
+
+            UserRole userRole = new UserRole();
+            userRole.setRole("ROLE_USER");
+            userRole.setUser(savedUser);
+            userRoleRepository.save(userRole);
+            log.info("User role created for user ID: {}", savedUser.getId());
             
-            emailService.sendVerificationEmail(savedUser.getEmail(), savedUser.getVerificationCode());
-            log.info("Email weryfikacyjny wysłany do: {}", savedUser.getEmail());
-            
+            try {
+                emailService.sendVerificationEmail(savedUser.getEmail(), verificationCode);
+                log.info("Verification email sent to: {}", savedUser.getEmail());
+            } catch (Exception e) {
+                log.error("Failed to send verification email: {}", e.getMessage(), e);
+            }
+
             return savedUser;
         } catch (Exception e) {
-            log.error("Błąd podczas rejestracji użytkownika: {}", e.getMessage(), e);
-            throw new RuntimeException("Wystąpił błąd podczas rejestracji. Spróbuj ponownie później.");
+            log.error("Error during user registration: {}", e.getMessage(), e);
+            throw new RuntimeException("Error during user registration: " + e.getMessage());
         }
     }
 
@@ -79,8 +128,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserState updateUserStatus(String email, UserState userState) {
-        User user = findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        User user = findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         user.setStatus(userState);
         userRepository.save(user);
         return userState;
@@ -89,19 +137,17 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void updateUserStatus(String email, String status) {
-        User user = findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        User user = findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         user.setStatus(UserState.valueOf(status));
         userRepository.save(user);
     }
 
     @Override
     @Transactional
-    public boolean activateUserAccount(UserActivateAccount request) {
-        User user = findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+    public boolean activateUserAccount(VerificationRequestDTO request) {
+        User user = findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!user.getVerificationCode().equals(request.getVerificationCode())) {
+        if (!user.getVerificationCode().equals(request.getCode())) {
             throw new RuntimeException("Nieprawidłowy kod weryfikacyjny");
         }
 
@@ -120,8 +166,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User updateUser(String email, UserDTO userDTO) {
-        User user = findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        User user = findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
@@ -136,8 +181,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void changePassword(String email, String currentPassword, String newPassword) {
-        User user = findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        User user = findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new RuntimeException("Nieprawidłowe obecne hasło");
@@ -150,8 +194,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void sendPasswordResetEmail(String email) {
-        User user = findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        User user = findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
         String resetToken = generateResetToken();
         user.setResetPasswordToken(resetToken);
@@ -180,23 +223,20 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(String email) {
-        User user = findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        User user = findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         userRepository.delete(user);
     }
 
     @Override
     public Map<String, String> getUserPreferences(String email) {
-        User user = findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        User user = findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         return user.getPreferences();
     }
 
     @Override
     @Transactional
     public Map<String, String> updateUserPreferences(String email, Map<String, String> preferences) {
-        User user = findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        User user = findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         user.setPreferences(preferences);
         userRepository.save(user);
         return user.getPreferences();
@@ -205,8 +245,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void resendVerificationCode(String email) throws VerificationException {
-        User user = findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        User user = findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
         if (user.getStatus() == UserState.ACTIVE) {
             throw new RuntimeException("Konto jest już aktywne");
@@ -223,8 +262,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void saveVerificationCode(String email, String code) {
-        User user = findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        User user = findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         
         user.setVerificationCode(code);
         user.setVerificationCodeExpiration(LocalDateTime.now().plusMinutes(10)); // Kod ważny przez 10 minut
@@ -233,8 +271,7 @@ public class UserServiceImpl implements UserService {
     
     @Override
     public boolean verifyCode(String email, String code) {
-        User user = findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        User user = findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         
         if (user.getVerificationCode() == null || user.getVerificationCodeExpiration() == null) {
             return false;
@@ -250,15 +287,15 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void clearVerificationCode(String email) {
-        User user = findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
+        User user = findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         
         user.setVerificationCode(null);
         user.setVerificationCodeExpiration(null);
         userRepository.save(user);
     }
 
-    private String generateVerificationCode() {
+    @Override
+    public String generateVerificationCode() {
         java.security.SecureRandom random = new java.security.SecureRandom();
         int code = 100000 + random.nextInt(900000);
         return String.valueOf(code);
@@ -266,5 +303,20 @@ public class UserServiceImpl implements UserService {
 
     private String generateResetToken() {
         return UUID.randomUUID().toString();
+    }
+
+    @Override
+    public void verifyUser(String token) {
+        User user = userRepository.findByVerificationToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid verification token"));
+        
+        user.setEnabled(true);
+        user.setVerificationToken(null);
+        userRepository.save(user);
+    }
+
+    @Override
+    public User saveUser(User user) {
+        return userRepository.save(user);
     }
 } 

@@ -22,6 +22,9 @@ public class JwtUtil {
 
     @Value("${security.jwt.expiration}")
     private long JWT_TOKEN_VALIDITY;
+    
+    // Refresh token będzie ważny przez 7 dni
+    private static final long REFRESH_TOKEN_VALIDITY = 7 * 24 * 60 * 60 * 1000; // 7 dni w milisekundach
 
     private Key getSigningKey() {
         byte[] keyBytes = SECRET_KEY.getBytes();
@@ -31,6 +34,12 @@ public class JwtUtil {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userDetails.getUsername());
+    }
+    
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("refresh", true);
+        return createRefreshToken(claims, userDetails.getUsername());
     }
 
     public String generateTemporaryToken(String username) {
@@ -45,6 +54,16 @@ public class JwtUtil {
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+    
+    private String createRefreshToken(Map<String, Object> claims, String subject) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
