@@ -6,50 +6,64 @@ import com.app.wydatki.exceptions.UserAlreadyExistsException;
 import com.app.wydatki.model.User;
 import com.app.wydatki.repository.UserRepository;
 import com.app.wydatki.request.UserActivateAccount;
-import com.app.wydatki.service.SendEmailService;
+import com.app.wydatki.service.email.EmailService;
 import com.app.wydatki.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.common.VerificationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final SendEmailService sendEmailService;
+    private final EmailService emailService;
 
     @Override
     @Transactional
     public User registerUser(UserDTO userDTO) {
+        log.info("Próba rejestracji użytkownika: {}", userDTO.getEmail());
+        
         if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
+            log.error("Użytkownik o emailu {} już istnieje", userDTO.getEmail());
             throw new UserAlreadyExistsException("Użytkownik o podanym emailu już istnieje.");
         }
 
-        User user = new User();
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        user.setName(userDTO.getFirstName());
-        user.setLastname(userDTO.getLastName());
-        user.setStatus(UserState.INACTIVE);
-        user.setVerificationCode(generateVerificationCode());
-        user.setVerificationCodeExpiration(LocalDateTime.now().plusHours(24));
-        user.setCreatedAt(LocalDateTime.now());
+        try {
+            User user = new User();
+            user.setEmail(userDTO.getEmail());
+            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            user.setFirstName(userDTO.getFirstName());
+            user.setLastName(userDTO.getLastName());
+            user.setDateOfBirth(LocalDate.parse(userDTO.getDateOfBirth()));
+            user.setStatus(UserState.INACTIVE);
+            user.setVerificationCode(generateVerificationCode());
+            user.setVerificationCodeExpiration(LocalDateTime.now().plusHours(24));
+            user.setCreatedAt(LocalDateTime.now());
 
-        User savedUser = userRepository.save(user);
-        
-        sendEmailService.sendVerificationCode(savedUser.getEmail(), savedUser.getVerificationCode());
-        
-        return savedUser;
+            User savedUser = userRepository.save(user);
+            log.info("Użytkownik zarejestrowany pomyślnie: {}", savedUser.getEmail());
+            
+            emailService.sendVerificationEmail(savedUser.getEmail(), savedUser.getVerificationCode());
+            log.info("Email weryfikacyjny wysłany do: {}", savedUser.getEmail());
+            
+            return savedUser;
+        } catch (Exception e) {
+            log.error("Błąd podczas rejestracji użytkownika: {}", e.getMessage(), e);
+            throw new RuntimeException("Wystąpił błąd podczas rejestracji. Spróbuj ponownie później.");
+        }
     }
 
     @Override
@@ -109,8 +123,8 @@ public class UserServiceImpl implements UserService {
         User user = findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony"));
 
-        user.setName(userDTO.getFirstName());
-        user.setLastname(userDTO.getLastName());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
         
         if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
@@ -144,9 +158,7 @@ public class UserServiceImpl implements UserService {
         user.setResetPasswordTokenExpiry(LocalDateTime.now().plusHours(24));
         userRepository.save(user);
 
-        sendEmailService.sendEmail(email, "Resetowanie hasła", "Aby zresetować hasło, kliknij w poniższy link:\n" +
-                       "http://localhost:8080/reset-password?token=" + resetToken + "\n" +
-                       "Link jest ważny przez 24 godziny.");
+        emailService.sendPasswordResetEmail(email, resetToken);
     }
 
     @Override
@@ -205,7 +217,7 @@ public class UserServiceImpl implements UserService {
         user.setVerificationCodeExpiration(LocalDateTime.now().plusHours(24));
         userRepository.save(user);
 
-        sendEmailService.sendVerificationCode(user.getEmail(), newVerificationCode);
+        emailService.sendVerificationEmail(user.getEmail(), newVerificationCode);
     }
 
     @Override
@@ -247,7 +259,9 @@ public class UserServiceImpl implements UserService {
     }
 
     private String generateVerificationCode() {
-        return UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        java.security.SecureRandom random = new java.security.SecureRandom();
+        int code = 100000 + random.nextInt(900000);
+        return String.valueOf(code);
     }
 
     private String generateResetToken() {

@@ -190,7 +190,8 @@ const Register = () => {
     lastName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    dateOfBirth: ''
   });
   
   const [loading, setLoading] = useState(false);
@@ -201,7 +202,8 @@ const Register = () => {
     lastName: true,
     email: true,
     password: true,
-    confirmPassword: true
+    confirmPassword: true,
+    dateOfBirth: true
   });
   
   const handleChange = (e) => {
@@ -224,7 +226,8 @@ const Register = () => {
       lastName: formData.lastName.trim() !== '',
       email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email),
       password: formData.password.length >= 8,
-      confirmPassword: formData.password === formData.confirmPassword
+      confirmPassword: formData.password === formData.confirmPassword,
+      dateOfBirth: formData.dateOfBirth !== ''
     };
     
     setValidation(newValidation);
@@ -248,7 +251,8 @@ const Register = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        dateOfBirth: formData.dateOfBirth
       });
       
       setSuccess(response.message);
@@ -259,7 +263,8 @@ const Register = () => {
         lastName: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        dateOfBirth: ''
       });
       
       // Po 3 sekundach przekieruj na stronę logowania
@@ -347,6 +352,25 @@ const Register = () => {
             </InputGroup>
             {!validation.email && (
               <ValidationMessage error>Podaj poprawny adres email</ValidationMessage>
+            )}
+          </FormGroup>
+          
+          <FormGroup>
+            <InputLabel htmlFor="dateOfBirth">Data urodzenia</InputLabel>
+            <InputGroup>
+              <InputIcon>
+                <FaUser />
+              </InputIcon>
+              <Input
+                type="date"
+                id="dateOfBirth"
+                name="dateOfBirth"
+                value={formData.dateOfBirth}
+                onChange={handleChange}
+              />
+            </InputGroup>
+            {!validation.dateOfBirth && (
+              <ValidationMessage error>Data urodzenia jest wymagana</ValidationMessage>
             )}
           </FormGroup>
           

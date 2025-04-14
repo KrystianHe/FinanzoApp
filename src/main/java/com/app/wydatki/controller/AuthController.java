@@ -6,7 +6,7 @@ import com.app.wydatki.dto.VerificationRequestDTO;
 import com.app.wydatki.dto.VerificationResponseDTO;
 import com.app.wydatki.request.UserActivateAccount;
 import com.app.wydatki.service.UserService;
-import com.app.wydatki.service.SendEmailService;
+import com.app.wydatki.service.email.EmailService;
 import com.app.wydatki.service.request.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +37,7 @@ public class AuthController {
     private UserService userService;
     
     @Autowired
-    private SendEmailService sendEmailService;
+    private EmailService emailService;
 
     @PostMapping("/login")
     public ResponseEntity<VerificationResponseDTO> login(@RequestBody LoginDTO loginDTO) {
@@ -51,7 +51,7 @@ public class AuthController {
         userService.saveVerificationCode(loginDTO.getEmail(), verificationCode);
         
         // Wysyłanie kodu weryfikacyjnego na adres email
-        sendEmailService.sendVerificationCode(loginDTO.getEmail(), verificationCode);
+        emailService.sendVerificationEmail(loginDTO.getEmail(), verificationCode);
         
         // Zwracanie tymczasowego tokenu
         String temporaryToken = jwtUtil.generateTemporaryToken(loginDTO.getEmail());
@@ -97,7 +97,7 @@ public class AuthController {
             userService.saveVerificationCode(email, verificationCode);
             
             // Ponowne wysłanie kodu na email
-            sendEmailService.sendVerificationCode(email, verificationCode);
+            emailService.sendVerificationEmail(email, verificationCode);
             
             return ResponseEntity.ok(Map.of(
                 "message", "Nowy kod weryfikacyjny został wysłany na Twój adres email."
