@@ -6,9 +6,10 @@
 
 ---
 
-### 🔐 Strona logowania
+### 🔐 Strona rejestracji
 
-![Strona logowania](https://github.com/user-attachments/assets/208a75c2-fd40-4583-961b-5d277c8e1d84)
+![Strona rejestracji](![image](https://github.com/user-attachments/assets/efdc608d-b010-4140-9d68-44a776133183)
+)
 
 ---
 
