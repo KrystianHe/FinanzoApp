@@ -8,8 +8,8 @@
 
 ### 🔐 Strona rejestracji
 
-![Strona rejestracji](![image](https://github.com/user-attachments/assets/efdc608d-b010-4140-9d68-44a776133183)
-)
+![Strona rejestracji](https://github.com/user-attachments/assets/efdc608d-b010-4140-9d68-44a776133183)
+
 
 ---
 
