@@ -5,6 +5,8 @@ import com.app.wydatki.dto.VerificationRequestDTO;
 import com.app.wydatki.enums.UserState;
 import com.app.wydatki.model.User;
 import org.keycloak.common.VerificationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -52,4 +54,6 @@ public interface UserService {
     
     // Method to generate a verification code
     String generateVerificationCode();
+
+    UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;
 }

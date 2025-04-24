@@ -11,10 +11,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class JwtAuthenticationResponseDTO {
 
-    private String accessToken;
+    private String token;
 
     private Long userId;
 
     public JwtAuthenticationResponseDTO(String token) {
+        this.token = token;
     }
 }

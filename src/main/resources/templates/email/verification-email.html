@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weryfikacja konta - MojeWydatki</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        .verification-code {
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.1) 0%, rgba(42, 82, 152, 0.1) 100%);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 30px 0;
+        }
+        .code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1e3c72;
+            letter-spacing: 5px;
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 12px;
+        }
+        .divider {
+            border-top: 1px solid #eee;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="email-container">
+            <div class="header">
+                <img src="cid:logo" alt="MojeWydatki Logo" class="logo">
+                <h1 style="color: #1e3c72; margin: 0;">Weryfikacja konta</h1>
+            </div>
+            
+            <p>Witaj,</p>
+            <p>Dziękujemy za rejestrację w serwisie MojeWydatki. Aby aktywować swoje konto, użyj poniższego kodu weryfikacyjnego:</p>
+            
+            <div class="verification-code">
+                <p style="margin: 0; color: #666;">Twój kod weryfikacyjny:</p>
+                <div class="code">{{verificationCode}}</div>
+                <p style="margin: 0; color: #666;">Kod jest ważny przez 24 godziny.</p>
+            </div>
+            
+            <p>Jeśli nie rejestrowałeś się w serwisie MojeWydatki, zignoruj tę wiadomość.</p>
+            
+            <div class="divider"></div>
+            
+            <div class="footer">
+                <p>© 2024 MojeWydatki. Wszelkie prawa zastrzeżone.</p>
+                <p>Ta wiadomość została wygenerowana automatycznie, prosimy na nią nie odpowiadać.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

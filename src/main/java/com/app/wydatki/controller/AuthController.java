@@ -82,43 +82,14 @@ public class AuthController {
     }
     
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult) {
-        log.info("Otrzymano żądanie rejestracji dla: {}", userDTO.getEmail());
-        log.info("Dane rejestracji: firstName={}, lastName={}, email={}, dateOfBirth={}", 
-            userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(), userDTO.getDateOfBirth());
-        
-        if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors()
-                    .stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                    .collect(Collectors.toList());
-            log.error("Błędy walidacji podczas rejestracji: {}", errors);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("errors", errors));
-        }
-
+    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
         try {
-            if (userService.findByEmail(userDTO.getEmail()).isPresent()) {
-                log.warn("Próba rejestracji na istniejący email: {}", userDTO.getEmail());
-                return ResponseEntity.badRequest().body(Map.of(
-                    "message", "Użytkownik o podanym adresie email już istnieje."
-                ));
-            }
-            
             User registeredUser = userService.registerUser(userDTO);
-            log.info("Użytkownik zarejestrowany pomyślnie: id={}, email={}, status={}, enabled={}", 
-                registeredUser.getId(), registeredUser.getEmail(), registeredUser.getStatus(), registeredUser.isEnabled());
-            
-            return ResponseEntity.ok(Map.of(
-                "message", "Rejestracja zakończona sukcesem.",
-                "userId", registeredUser.getId(),
-                "verificationRequired", true
-            ));
+            return ResponseEntity.ok(registeredUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            log.error("Błąd podczas rejestracji użytkownika: {}", e.getMessage(), e);
-            return ResponseEntity.badRequest().body(Map.of(
-                "message", "Błąd podczas rejestracji: " + e.getMessage()
-            ));
+            return ResponseEntity.badRequest().body("Error during registration: " + e.getMessage());
         }
     }
     

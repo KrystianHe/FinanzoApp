@@ -30,3 +30,4 @@ public class ChatController {
         return ResponseEntity.ok(chatAIService.getUserChatHistory(userDetails.getUsername()));
     }
 }
+

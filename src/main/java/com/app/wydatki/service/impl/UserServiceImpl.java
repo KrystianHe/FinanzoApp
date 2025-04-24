@@ -13,6 +13,8 @@ import com.app.wydatki.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.common.VerificationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,51 +70,42 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Email already exists");
         }
 
-        try {
-            User user = new User();
-            user.setFirstName(userDTO.getFirstName().trim());
-            user.setLastName(userDTO.getLastName().trim());
-            user.setEmail(userDTO.getEmail().trim());
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-            
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate dateOfBirth = LocalDate.parse(userDTO.getDateOfBirth(), formatter);
-            user.setDateOfBirth(dateOfBirth);
-            
-            user.setCreatedAt(LocalDateTime.now());
-            user.setStatus(UserState.INACTIVE);
-            user.setType(UserType.USER);
-            user.setFailedLoginAttempts(0);
-            user.setEnabled(false);
-            
-            String verificationToken = UUID.randomUUID().toString();
-            user.setVerificationToken(verificationToken);
-            
-            String verificationCode = generateVerificationCode();
-            user.setVerificationCode(verificationCode);
-            user.setVerificationCodeExpiration(LocalDateTime.now().plusHours(24));
+        User user = new User();
+        user.setFirstName(userDTO.getFirstName().trim());
+        user.setLastName(userDTO.getLastName().trim());
+        user.setEmail(userDTO.getEmail().trim());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateOfBirth = LocalDate.parse(userDTO.getDateOfBirth(), formatter);
+        user.setDateOfBirth(dateOfBirth);
+        
+        user.setCreatedAt(LocalDateTime.now());
+        user.setStatus(UserState.INACTIVE);
+        user.setType(UserType.USER);
+        user.setFailedLoginAttempts(0);
+        user.setEnabled(false);
+        
+        String verificationToken = UUID.randomUUID().toString();
+        user.setVerificationToken(verificationToken);
+        
+        String verificationCode = generateVerificationCode();
+        user.setVerificationCode(verificationCode);
+        user.setVerificationCodeExpiration(LocalDateTime.now().plusHours(24));
 
-            User savedUser = userRepository.save(user);
-            log.info("User saved with ID: {}", savedUser.getId());
+        User savedUser = userRepository.save(user);
+        log.info("User saved with ID: {}", savedUser.getId());
 
-            UserRole userRole = new UserRole();
-            userRole.setRole("ROLE_USER");
-            userRole.setUser(savedUser);
-            userRoleRepository.save(userRole);
-            log.info("User role created for user ID: {}", savedUser.getId());
-            
-            try {
-                emailService.sendVerificationEmail(savedUser.getEmail(), verificationCode);
-                log.info("Verification email sent to: {}", savedUser.getEmail());
-            } catch (Exception e) {
-                log.error("Failed to send verification email: {}", e.getMessage(), e);
-            }
+        UserRole userRole = new UserRole();
+        userRole.setRole("ROLE_USER");
+        userRole.setUser(savedUser);
+        userRoleRepository.save(userRole);
+        log.info("User role created for user ID: {}", savedUser.getId());
+        
+        emailService.sendVerificationEmail(savedUser.getEmail(), verificationCode);
+        log.info("Verification email sent to: {}", savedUser.getEmail());
 
-            return savedUser;
-        } catch (Exception e) {
-            log.error("Error during user registration: {}", e.getMessage(), e);
-            throw new RuntimeException("Error during user registration: " + e.getMessage());
-        }
+        return savedUser;
     }
 
     @Override
@@ -318,5 +311,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public User saveUser(User user) {
         return userRepository.save(user);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getEmail())
+                .password(user.getPassword())
+                .roles("USER")
+                .build();
     }
 } 

@@ -4,6 +4,15 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Spring Boot sensitive config
+src/main/resources/application.yml
+src/main/resources/application.properties
+src/test/resources/application*.properties
+
+# Lokalna baza danych H2
+*.mv.db
+*.h2.db
+
 ### STS ###
 .apt_generated
 .classpath
@@ -31,3 +40,18 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Angular ###
+frontend/.angular/
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/coverage/
+frontend/.angular/cache/
+frontend/npm-debug.log
+frontend/yarn-error.log
+frontend/.sass-cache/
+frontend/connect.lock
+frontend/libpeerconnection.log
+frontend/testem.log
+frontend/typings/
