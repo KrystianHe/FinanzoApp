@@ -1,1 +1,1 @@
-web: java -jar target/Wydatki-0.0.1-SNAPSHOT.jar 
+web: java -Xmx400m -Xms200m -jar target/Wydatki-0.0.1-SNAPSHOT.jar 
