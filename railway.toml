@@ -8,10 +8,10 @@ restartPolicyMaxRetries = 10
 
 [[services]]
 name = "frontend"
-dockerfile = "frontend/Dockerfile"
-directory = "frontend"
+source = "frontend"
+dockerfile = "./Dockerfile"
 
 [[services]]
 name = "backend"
-dockerfile = "Dockerfile"
-directory = "." 
+source = "."
+dockerfile = "./Dockerfile" 
