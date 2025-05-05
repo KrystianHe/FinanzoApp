@@ -1,8 +1,8 @@
-FROM maven:3.9.6-eclipse-temurin-17 AS builder
+FROM eclipse-temurin:17-jdk AS builder
 
 WORKDIR /app
 COPY . .
-RUN chmod +x mvnw && ./mvnw clean package -DskipTests
+RUN ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:17-jre-focal
 
