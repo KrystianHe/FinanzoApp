@@ -3,11 +3,9 @@ package com.app.wydatki.config;
 import com.sendgrid.SendGrid;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
-@Profile("!test")
 public class EmailConfig {
 
     @Value("${sendgrid.api-key}")
