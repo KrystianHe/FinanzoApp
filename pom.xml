@@ -138,6 +138,10 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <fork>true</fork>
+                    <compilerArgs>
+                        <arg>-J-Duser.language=en</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>
