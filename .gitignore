@@ -12,6 +12,7 @@ src/test/resources/application*.properties
 # Lokalna baza danych H2
 *.mv.db
 *.h2.db
+*.trace.db
 
 ### STS ###
 .apt_generated
@@ -53,3 +54,8 @@ yarn-error.log
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Angular specific
+.angular/
+/frontend/.angular/
+/frontend/dist/

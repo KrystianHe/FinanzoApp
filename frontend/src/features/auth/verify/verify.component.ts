@@ -4,13 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import {ParticlesComponent} from '../../shared/components/particles.component';
 
 @Component({
   selector: 'app-verify',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule,ParticlesComponent],
   template: `
     <div class="verify-page">
+      <app-particles></app-particles>
       <div class="verify-container">
         <div class="verify-header">
           <img src="assets/finanzo-logo.jpg" alt="Finanzo" class="logo">
@@ -91,6 +93,15 @@ import { environment } from '../../../environments/environment';
     .verify-header {
       text-align: center;
       margin-bottom: 2.5rem;
+    }
+
+    .logo {
+      max-width: 120px;
+      height: auto;
+      margin: 0 auto 1rem;
+      display: block;
+      object-fit: contain;
+      border-radius: 8px;
     }
 
     .verify-header h2 {
