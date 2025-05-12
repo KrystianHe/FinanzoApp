@@ -35,7 +35,7 @@ public class EmailServiceImpl implements EmailService {
         try {
             Email from = new Email(fromEmail, fromName);
             Email to = new Email(email);
-            String subject = "Weryfikacja konta - MojeWydatki";
+            String subject = "Weryfikacja konta - Finanzo";
 
             String htmlContent = String.format("""
                 <!DOCTYPE html>
@@ -84,12 +84,12 @@ public class EmailServiceImpl implements EmailService {
                 <body>
                     <div class="container">
                         <div class="header">
-                            <img src="cid:logo" alt="MojeWydatki Logo" class="logo">
+                            <img src="cid:logo" alt="Finanzo Logo" class="logo">
                             <h1 style="color: #1e3c72; margin: 0;">Weryfikacja konta</h1>
                         </div>
                         
                         <p>Witaj,</p>
-                        <p>Dziękujemy za rejestrację w serwisie MojeWydatki. Aby aktywować swoje konto, użyj poniższego kodu weryfikacyjnego:</p>
+                        <p>Dziękujemy za rejestrację w serwisie Finanzo. Aby aktywować swoje konto, użyj poniższego kodu weryfikacyjnego:</p>
                         
                         <div class="verification-code">
                             <p style="margin: 0; color: #666;">Twój kod weryfikacyjny:</p>
@@ -97,10 +97,10 @@ public class EmailServiceImpl implements EmailService {
                             <p style="margin: 0; color: #666;">Kod jest ważny przez 24 godziny.</p>
                         </div>
                         
-                        <p>Jeśli nie rejestrowałeś się w serwisie MojeWydatki, zignoruj tę wiadomość.</p>
+                        <p>Jeśli nie rejestrowałeś się w serwisie Finanzo, zignoruj tę wiadomość.</p>
                         
                         <div class="footer">
-                            <p>© 2024 MojeWydatki. Wszelkie prawa zastrzeżone.</p>
+                            <p>© 2024 Finanzo. Wszelkie prawa zastrzeżone.</p>
                             <p>Ta wiadomość została wygenerowana automatycznie, prosimy na nią nie odpowiadać.</p>
                         </div>
                     </div>
@@ -117,7 +117,7 @@ public class EmailServiceImpl implements EmailService {
             String base64Logo = Base64.getEncoder().encodeToString(logoBytes);
 
             Attachments attachments = new Attachments();
-            attachments.setFilename("logoMW.jpg");
+            attachments.setFilename("finanzo-logo.png");
             attachments.setType("image/jpeg");
             attachments.setDisposition("inline");
             attachments.setContentId("logo");

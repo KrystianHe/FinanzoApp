@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
 import { LoginRequest, RegisterRequest, User } from '../models/user.model';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 interface LoginResponse {
   token: string;
@@ -17,30 +18,25 @@ export class AuthService {
   private readonly API_URL = 'http://localhost:8080/api';
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_DATA_KEY = 'user_data';
-  private isLoggedInSubject: BehaviorSubject<boolean>;
+  private isLoggedInSubject = new BehaviorSubject<boolean>(false);
+  isLoggedIn$ = this.isLoggedInSubject.asObservable();
+  private jwtHelper: JwtHelperService = new JwtHelperService();
+  private autoLoginAttempted = false;
 
   constructor(
     private http: HttpClient,
     private router: Router
   ) {
-    const token = this.getToken();
-    this.isLoggedInSubject = new BehaviorSubject<boolean>(!!token);
-    
-    if (token && !this.getUserData()) {
-      this.fetchUserData().subscribe();
-    }
+    // Nie wywołujemy checkLoginStatus przy inicjalizacji, aby zapobiec automatycznemu przekierowaniu
   }
 
-  get isLoggedIn$(): Observable<boolean> {
-    return this.isLoggedInSubject.asObservable();
-  }
-
-  login(credentials: { email: string; password: string }): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.API_URL}/auth/login`, credentials).pipe(
+  login(credentials: { email: string; password: string }): Observable<any> {
+    return this.http.post<{token: string, user: User}>(`${this.API_URL}/auth/login`, credentials).pipe(
       tap(response => {
         this.setToken(response.token);
         this.setUserData(response.user);
         this.isLoggedInSubject.next(true);
+        this.autoLoginAttempted = true;
       })
     );
   }
@@ -63,6 +59,11 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
+  logoutWithoutRedirect(): void {
+    this.clearAuthData();
+    this.isLoggedInSubject.next(false);
+  }
+
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }
@@ -83,7 +84,7 @@ export class AuthService {
     }
   }
 
-  private setUserData(user: any): void {
+  private setUserData(user: User): void {
     localStorage.setItem(this.USER_DATA_KEY, JSON.stringify(user));
   }
 
@@ -92,23 +93,35 @@ export class AuthService {
     localStorage.removeItem(this.USER_DATA_KEY);
   }
 
-  private fetchUserData(): Observable<any> {
-    return this.http.get(`${this.API_URL}/auth/me`).pipe(
-      tap(user => {
-        this.setUserData(user);
-      })
-    );
+  checkAuthStatus(): void {
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    if (token && !this.jwtHelper.isTokenExpired(token)) {
+      this.isLoggedInSubject.next(true);
+    } else {
+      // Tylko czyszczenie danych bez przekierowania
+      this.logoutWithoutRedirect();
+    }
   }
 
-  private hasValidToken(): boolean {
-    const token = this.getToken();
-    if (!token) return false;
-
-    try {
-      return true;
-    } catch {
-      this.clearAuthData();
-      return false;
+  private checkLoginStatus(): void {
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    if (token && !this.jwtHelper.isTokenExpired(token)) {
+      this.isLoggedInSubject.next(true);
+    } else if (!this.autoLoginAttempted) {
+      // Używamy wersji bez przekierowania
+      this.logoutWithoutRedirect();
     }
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/auth/change-password`, { currentPassword, newPassword });
+  }
+
+  deactivateAccount(): Observable<any> {
+    return this.http.post(`${this.API_URL}/auth/deactivate-account`, {});
+  }
+
+  deleteAccount(): Observable<any> {
+    return this.http.delete(`${this.API_URL}/auth/delete-account`);
   }
 } 

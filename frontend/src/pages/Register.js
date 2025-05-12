@@ -21,7 +21,7 @@ const RegisterCard = styled.div`
   width: 100%;
   max-width: 550px;
   padding: 2.5rem;
-  
+
   @media (max-width: 576px) {
     padding: 1.5rem;
   }
@@ -30,13 +30,13 @@ const RegisterCard = styled.div`
 const Logo = styled.div`
   text-align: center;
   margin-bottom: 2.5rem;
-  
+
   h1 {
     font-size: 2.5rem;
     color: var(--primary-color);
     margin-bottom: 0.5rem;
   }
-  
+
   p {
     color: var(--dark-color);
     opacity: 0.7;
@@ -62,7 +62,7 @@ const InputGroup = styled.div`
   border-radius: var(--border-radius);
   overflow: hidden;
   transition: border-color 0.3s ease;
-  
+
   &:focus-within {
     border-color: var(--primary-color);
   }
@@ -90,7 +90,7 @@ const Input = styled.input`
   padding: 1rem;
   border: none;
   font-size: 1rem;
-  
+
   &:focus {
     outline: none;
   }
@@ -99,7 +99,7 @@ const Input = styled.input`
 const InputRow = styled.div`
   display: flex;
   gap: 1rem;
-  
+
   @media (max-width: 576px) {
     flex-direction: column;
     gap: 0;
@@ -121,11 +121,11 @@ const Button = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background-color: var(--primary-dark);
   }
-  
+
   &:disabled {
     background-color: var(--grey-color);
     cursor: not-allowed;
@@ -154,12 +154,12 @@ const RedirectLink = styled.div`
   margin-top: 1.5rem;
   text-align: center;
   font-size: 0.9rem;
-  
+
   a {
     color: var(--primary-color);
     text-decoration: none;
     font-weight: 500;
-    
+
     &:hover {
       text-decoration: underline;
     }
@@ -184,7 +184,7 @@ const LoadingSpinner = styled(FaSpinner)`
 
 const Register = () => {
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -193,7 +193,7 @@ const Register = () => {
     confirmPassword: '',
     dateOfBirth: ''
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -205,21 +205,21 @@ const Register = () => {
     confirmPassword: true,
     dateOfBirth: true
   });
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value
     });
-    
+
     // Resetowanie błędów walidacji przy edycji
     setValidation({
       ...validation,
       [name]: true
     });
   };
-  
+
   const validateForm = () => {
     const newValidation = {
       firstName: formData.firstName.trim() !== '',
@@ -229,24 +229,24 @@ const Register = () => {
       confirmPassword: formData.password === formData.confirmPassword,
       dateOfBirth: formData.dateOfBirth !== ''
     };
-    
+
     setValidation(newValidation);
-    
+
     return Object.values(newValidation).every(isValid => isValid);
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       setError('Formularz zawiera błędy. Popraw je przed kontynuowaniem.');
       return;
     }
-    
+
     try {
       setLoading(true);
       setError('');
-      
+
       const response = await authService.register({
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -254,12 +254,12 @@ const Register = () => {
         password: formData.password,
         dateOfBirth: formData.dateOfBirth
       });
-      
+
       setSuccess(response.message);
-      
+
       // Zapisanie emaila do localStorage do użycia na stronie weryfikacji
       localStorage.setItem('verificationEmail', formData.email);
-      
+
       // Resetowanie formularza
       setFormData({
         firstName: '',
@@ -269,32 +269,32 @@ const Register = () => {
         confirmPassword: '',
         dateOfBirth: ''
       });
-      
+
       // Przekierowanie do strony weryfikacji
       setTimeout(() => {
         navigate('/verify');
       }, 2000);
-      
+
     } catch (err) {
       setError(err.response?.data?.message || 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.');
     } finally {
       setLoading(false);
     }
   };
-  
+
   return (
     <RegisterContainer>
       <RegisterCard>
         <Logo>
-          <h1>MojeWydatki</h1>
+          <h1>Finanzo</h1>
           <p>Zarządzaj swoimi finansami</p>
         </Logo>
-        
+
         <FormTitle>Zarejestruj się</FormTitle>
-        
+
         {error && <ErrorMessage>{error}</ErrorMessage>}
         {success && <SuccessMessage>{success}</SuccessMessage>}
-        
+
         <form onSubmit={handleSubmit}>
           <InputRow>
             <FormGroup>
@@ -316,7 +316,7 @@ const Register = () => {
                 <ValidationMessage error>Imię jest wymagane</ValidationMessage>
               )}
             </FormGroup>
-            
+
             <FormGroup>
               <InputLabel htmlFor="lastName">Nazwisko</InputLabel>
               <InputGroup>
@@ -337,7 +337,7 @@ const Register = () => {
               )}
             </FormGroup>
           </InputRow>
-          
+
           <FormGroup>
             <InputLabel htmlFor="email">Adres email</InputLabel>
             <InputGroup>
@@ -357,7 +357,7 @@ const Register = () => {
               <ValidationMessage error>Podaj poprawny adres email</ValidationMessage>
             )}
           </FormGroup>
-          
+
           <FormGroup>
             <InputLabel htmlFor="dateOfBirth">Data urodzenia</InputLabel>
             <InputGroup>
@@ -376,7 +376,7 @@ const Register = () => {
               <ValidationMessage error>Data urodzenia jest wymagana</ValidationMessage>
             )}
           </FormGroup>
-          
+
           <FormGroup>
             <InputLabel htmlFor="password">Hasło</InputLabel>
             <InputGroup>
@@ -396,7 +396,7 @@ const Register = () => {
               <ValidationMessage error>Hasło musi mieć co najmniej 8 znaków</ValidationMessage>
             )}
           </FormGroup>
-          
+
           <FormGroup>
             <InputLabel htmlFor="confirmPassword">Powtórz hasło</InputLabel>
             <InputGroup>
@@ -416,12 +416,12 @@ const Register = () => {
               <ValidationMessage error>Hasła nie są identyczne</ValidationMessage>
             )}
           </FormGroup>
-          
+
           <Button type="submit" disabled={loading || success}>
             {loading ? <LoadingSpinner /> : <FaUserPlus />} Zarejestruj się
           </Button>
         </form>
-        
+
         <RedirectLink>
           Masz już konto? <Link to="/login"><FaSignInAlt /> Zaloguj się</Link>
         </RedirectLink>
@@ -430,4 +430,4 @@ const Register = () => {
   );
 };
 
-export default Register; 
+export default Register;

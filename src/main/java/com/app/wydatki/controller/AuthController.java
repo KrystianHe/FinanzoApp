@@ -3,7 +3,6 @@ package com.app.wydatki.controller;
 import com.app.wydatki.dto.LoginDTO;
 import com.app.wydatki.dto.UserDTO;
 import com.app.wydatki.dto.VerificationRequestDTO;
-import com.app.wydatki.dto.VerificationResponseDTO;
 import com.app.wydatki.enums.UserState;
 import com.app.wydatki.model.User;
 import com.app.wydatki.service.UserService;
@@ -17,15 +16,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
-import org.springframework.validation.BindingResult;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 
-import java.security.SecureRandom;
 import java.util.Map;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
@@ -188,64 +181,7 @@ public class AuthController {
             ));
         }
     }
-    
-    @PostMapping("/test-activate")
-    public ResponseEntity<?> testActivateAccount(@RequestParam String email) {
-        log.info("Żądanie testowej aktywacji konta dla: {}", email);
-        
-        try {
-            User user = userService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie istnieje"));
-            
-            user.setStatus(UserState.ACTIVE);
-            user.setEnabled(true);
-            user.setVerificationCode(null);
-            user.setVerificationCodeExpiration(null);
-            userService.saveUser(user);
-            
-            log.info("Konto zostało aktywowane bez weryfikacji dla: {}", email);
-            
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "Konto zostało aktywowane testowo."
-            ));
-        } catch (Exception e) {
-            log.error("Błąd podczas testowej aktywacji: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                "success", false,
-                "message", "Błąd podczas aktywacji: " + e.getMessage()
-            ));
-        }
-    }
-    
-    @GetMapping("/test-user-info")
-    public ResponseEntity<?> testUserInfo(@RequestParam String email) {
-        log.info("Żądanie wyświetlenia informacji o użytkowniku: {}", email);
-        
-        try {
-            User user = userService.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie istnieje"));
-            
-            Map<String, Object> userInfo = new HashMap<>();
-            userInfo.put("id", user.getId());
-            userInfo.put("email", user.getEmail());
-            userInfo.put("firstName", user.getFirstName());
-            userInfo.put("lastName", user.getLastName());
-            userInfo.put("status", user.getStatus());
-            userInfo.put("enabled", user.isEnabled());
-            userInfo.put("encodedPassword", user.getPassword().substring(0, 10) + "..."); // Pokazujemy tylko początek zakodowanego hasła
-            
-            log.info("Informacje o użytkowniku pobrane: {}", userInfo);
-            
-            return ResponseEntity.ok(userInfo);
-        } catch (Exception e) {
-            log.error("Błąd podczas pobierania informacji o użytkowniku: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                "success", false,
-                "message", "Błąd: " + e.getMessage()
-            ));
-        }
-    }
+
 
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> refreshRequest) {
@@ -285,6 +221,71 @@ public class AuthController {
             log.error("Błąd podczas odświeżania tokenu: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                 "message", "Błąd podczas odświeżania tokenu: " + e.getMessage()
+            ));
+        }
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> payload, Authentication authentication) {
+        String email = authentication.getName();
+        String currentPassword = payload.get("currentPassword");
+        String newPassword = payload.get("newPassword");
+        
+        log.info("Żądanie zmiany hasła dla użytkownika: {}", email);
+        
+        try {
+            userService.changePassword(email, currentPassword, newPassword);
+            return ResponseEntity.ok(Map.of(
+                "success", true, 
+                "message", "Hasło zostało zmienione pomyślnie."
+            ));
+        } catch (Exception e) {
+            log.error("Błąd podczas zmiany hasła: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "success", false, 
+                "message", e.getMessage()
+            ));
+        }
+    }
+
+    @PostMapping("/deactivate-account")
+    public ResponseEntity<?> deactivateAccount(Authentication authentication) {
+        String email = authentication.getName();
+        
+        log.info("Żądanie dezaktywacji konta dla użytkownika: {}", email);
+        
+        try {
+            userService.updateUserStatus(email, UserState.INACTIVE);
+            return ResponseEntity.ok(Map.of(
+                "success", true, 
+                "message", "Konto zostało dezaktywowane pomyślnie."
+            ));
+        } catch (Exception e) {
+            log.error("Błąd podczas dezaktywacji konta: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "success", false, 
+                "message", e.getMessage()
+            ));
+        }
+    }
+
+    @DeleteMapping("/delete-account")
+    public ResponseEntity<?> deleteAccount(Authentication authentication) {
+        String email = authentication.getName();
+        
+        log.info("Żądanie usunięcia konta dla użytkownika: {}", email);
+        
+        try {
+            userService.deleteUser(email);
+            return ResponseEntity.ok(Map.of(
+                "success", true, 
+                "message", "Konto zostało usunięte pomyślnie."
+            ));
+        } catch (Exception e) {
+            log.error("Błąd podczas usuwania konta: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "success", false, 
+                "message", e.getMessage()
             ));
         }
     }

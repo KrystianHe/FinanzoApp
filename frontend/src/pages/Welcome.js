@@ -17,7 +17,7 @@ const HeroWithImage = styled.div`
   padding: 3rem 2rem;
   color: white;
   text-align: center;
-  
+
   @media (max-width: 768px) {
     padding: 2rem 1rem;
   }
@@ -33,7 +33,7 @@ const HeroTitle = styled.h1`
   margin-bottom: 1rem;
   color: #ffffff;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  
+
   @media (max-width: 768px) {
     font-size: 2.2rem;
   }
@@ -47,7 +47,7 @@ const HeroSubtitle = styled.p`
   margin-right: auto;
   opacity: 0.95;
   color: #e1e8f5;
-  
+
   @media (max-width: 768px) {
     font-size: 1rem;
   }
@@ -58,7 +58,7 @@ const ButtonContainer = styled.div`
   justify-content: center;
   gap: 1.5rem;
   margin-top: 1rem;
-  
+
   @media (max-width: 576px) {
     flex-direction: column;
     align-items: center;
@@ -78,13 +78,13 @@ const PrimaryButton = styled(Link)`
   align-items: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     background-color: #f8f8f8;
   }
-  
+
   @media (max-width: 768px) {
     font-size: 1rem;
     padding: 0.8rem 1.5rem;
@@ -104,14 +104,14 @@ const SecondaryButton = styled(Link)`
   gap: 0.5rem;
   border: 2px solid rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
-  
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.15);
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     border-color: #ffffff;
   }
-  
+
   @media (max-width: 768px) {
     font-size: 1rem;
     padding: 0.8rem 1.5rem;
@@ -121,7 +121,7 @@ const SecondaryButton = styled(Link)`
 const FeaturesSection = styled.section`
   padding: 2.5rem 2rem;
   background-color: var(--light-grey);
-  
+
   @media (max-width: 768px) {
     padding: 2rem 1rem;
   }
@@ -132,7 +132,7 @@ const SectionTitle = styled.h2`
   font-size: 2rem;
   margin-bottom: 0.5rem;
   color: var(--dark-color);
-  
+
   @media (max-width: 768px) {
     font-size: 1.8rem;
   }
@@ -151,7 +151,7 @@ const SectionSubtitle = styled.p`
 
 const FeaturesWrapper = styled.div`
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -170,11 +170,11 @@ const FeaturesGrid = styled.div`
   gap: 1rem;
   max-width: 1200px;
   margin: 0 auto;
-  
+
   @media (max-width: 992px) {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   @media (max-width: 576px) {
     grid-template-columns: 1fr;
   }
@@ -188,12 +188,12 @@ const FeatureCard = styled.div`
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
-  
+
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   }
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -239,7 +239,7 @@ const IllustrationSection = styled.section`
   background-color: #f9f9f9;
   position: relative;
   overflow: hidden;
-  
+
   @media (max-width: 768px) {
     padding: 2rem 1rem;
   }
@@ -250,7 +250,7 @@ const IllustrationContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   align-items: center;
-  
+
   @media (max-width: 992px) {
     flex-direction: column;
     gap: 1.5rem;
@@ -260,7 +260,7 @@ const IllustrationContainer = styled.div`
 const IllustrationContent = styled.div`
   flex: 1;
   padding-right: 2rem;
-  
+
   @media (max-width: 992px) {
     padding-right: 0;
     text-align: center;
@@ -271,7 +271,7 @@ const IllustrationTitle = styled.h2`
   font-size: 1.8rem;
   margin-bottom: 0.8rem;
   color: var(--dark-color);
-  
+
   @media (max-width: 768px) {
     font-size: 1.6rem;
   }
@@ -294,7 +294,7 @@ const IllustrationImage = styled.div`
   background-position: center;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
-  
+
   @media (max-width: 992px) {
     width: 100%;
     min-height: 200px;
@@ -308,7 +308,7 @@ const BenefitList = styled.ul`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0.5rem;
-  
+
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
@@ -319,13 +319,13 @@ const BenefitItem = styled.li`
   align-items: center;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
-  
+
   svg {
     color: #4CAF50;
     margin-right: 0.5rem;
     flex-shrink: 0;
   }
-  
+
   @media (max-width: 992px) {
     text-align: left;
   }
@@ -335,7 +335,7 @@ const CTASection = styled.section`
   padding: 2.5rem 2rem;
   background-color: white;
   text-align: center;
-  
+
   @media (max-width: 768px) {
     padding: 2rem 1rem;
   }
@@ -353,7 +353,7 @@ const CTAButton = styled(Link)`
   align-items: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background-color: var(--primary-dark);
     transform: translateY(-3px);
@@ -381,12 +381,12 @@ const Welcome = () => {
     <WelcomeContainer>
       <HeroWithImage>
         <HeroContent>
-          <HeroTitle>MojeWydatki</HeroTitle>
+          <HeroTitle>Finanzo</HeroTitle>
           <HeroSubtitle>
-            Inteligentna aplikacja do zarządzania finansami osobistymi. Kontroluj wydatki, 
+            Inteligentna aplikacja do zarządzania finansami osobistymi. Kontroluj wydatki,
             planuj budżet i osiągaj swoje cele finansowe.
           </HeroSubtitle>
-          
+
           <ButtonContainer>
             <PrimaryButton to="/register">
               <FaUserPlus /> Zarejestruj się za darmo
@@ -397,14 +397,14 @@ const Welcome = () => {
           </ButtonContainer>
         </HeroContent>
       </HeroWithImage>
-      
+
       <FeaturesSection>
-        <SectionTitle>Dlaczego MojeWydatki?</SectionTitle>
+        <SectionTitle>Dlaczego Finanzo?</SectionTitle>
         <SectionSubtitle>
-          Nasza aplikacja pomaga w efektywnym zarządzaniu finansami osobistymi dzięki 
+          Nasza aplikacja pomaga w efektywnym zarządzaniu finansami osobistymi dzięki
           intuicyjnym narzędziom i przejrzystym statystykom.
         </SectionSubtitle>
-        
+
         <FeaturesWrapper>
           <FeaturesGrid>
             <FeatureCard color="#4CAF50">
@@ -414,7 +414,7 @@ const Welcome = () => {
                 Wydatki możesz dodawać szybko i wygodnie z każdego urządzenia.
               </FeatureDescription>
             </FeatureCard>
-            
+
             <FeatureCard color="#2196F3">
               <FeatureTitle color="#2196F3">Zaawansowane statystyki</FeatureTitle>
               <FeatureDescription>
@@ -422,23 +422,23 @@ const Welcome = () => {
                 Analizuj swoje wydatki według kategorii i planuj budżet.
               </FeatureDescription>
             </FeatureCard>
-            
+
             <FeatureCard color="#9C27B0">
               <FeatureTitle color="#9C27B0">Dostęp z każdego urządzenia</FeatureTitle>
               <FeatureDescription>
-                Aplikacja dostępna na komputerze, tablecie i telefonie - zawsze miej swoje 
+                Aplikacja dostępna na komputerze, tablecie i telefonie - zawsze miej swoje
                 finanse pod kontrolą, gdziekolwiek jesteś.
               </FeatureDescription>
             </FeatureCard>
-            
+
             <FeatureCard color="#FF9800">
               <FeatureTitle color="#FF9800">Bezpieczeństwo danych</FeatureTitle>
               <FeatureDescription>
-                Twoje dane finansowe są bezpieczne dzięki zaawansowanym technologiom 
+                Twoje dane finansowe są bezpieczne dzięki zaawansowanym technologiom
                 szyfrowania i dwuetapowej weryfikacji logowania.
               </FeatureDescription>
             </FeatureCard>
-            
+
             <FeatureCard color="#F44336">
               <FeatureTitle color="#F44336">Raportowanie</FeatureTitle>
               <FeatureDescription>
@@ -446,27 +446,27 @@ const Welcome = () => {
                 Pobieraj dane w formatach CSV i PDF do dalszej analizy.
               </FeatureDescription>
             </FeatureCard>
-            
+
             <FeatureCard color="#009688">
               <FeatureTitle color="#009688">Za darmo!</FeatureTitle>
               <FeatureDescription>
-                MojeWydatki jest całkowicie darmowe. Nie ma ukrytych opłat,
+                Finanzo jest całkowicie darmowe. Nie ma ukrytych opłat,
                 reklam ani ograniczeń funkcjonalności.
               </FeatureDescription>
             </FeatureCard>
           </FeaturesGrid>
         </FeaturesWrapper>
       </FeaturesSection>
-      
+
       <IllustrationSection>
         <IllustrationContainer>
           <IllustrationContent>
             <IllustrationTitle>Oszczędzaj czas i pieniądze</IllustrationTitle>
             <IllustrationDescription>
-              MojeWydatki to więcej niż aplikacja - to narzędzie, które pomoże Ci osiągnąć 
+              Finanzo to więcej niż aplikacja - to narzędzie, które pomoże Ci osiągnąć
               finansową niezależność i spokój. Przestań zastanawiać się, gdzie znikają Twoje pieniądze.
             </IllustrationDescription>
-            
+
             <BenefitList>
               <BenefitItem>
                 <FaCheckCircle size={20} /> Kontroluj swoje wydatki na bieżąco
@@ -481,31 +481,31 @@ const Welcome = () => {
                 <FaCheckCircle size={20} /> Podejmuj lepsze decyzje finansowe oparte na danych
               </BenefitItem>
             </BenefitList>
-            
+
             <PrimaryButton to="/register" style={{ backgroundColor: '#1e3c72', color: 'white' }}>
               Rozpocznij teraz <FaArrowRight />
             </PrimaryButton>
           </IllustrationContent>
-          
+
           <IllustrationImage />
         </IllustrationContainer>
       </IllustrationSection>
-      
+
       <CTASection>
         <SectionTitle>Zacznij kontrolować swoje finanse już dziś</SectionTitle>
         <SectionSubtitle>
-          Dołącz do setek użytkowników, którzy dzięki MojeWydatki oszczędzają pieniądze
+          Dołącz do setek użytkowników, którzy dzięki Finanzo oszczędzają pieniądze
           i realizują swoje cele finansowe.
         </SectionSubtitle>
-        
+
         <CTAButton to="/register">
           <FaUserPlus /> Zarejestruj się za darmo <FaArrowRight />
         </CTAButton>
       </CTASection>
-      
+
       <Footer>
         <FooterText>
-          © {new Date().getFullYear()} MojeWydatki. Wszelkie prawa zastrzeżone.
+          © {new Date().getFullYear()} Finanzo. Wszelkie prawa zastrzeżone.
           Twój osobisty asystent do zarządzania finansami.
         </FooterText>
       </Footer>
@@ -513,4 +513,4 @@ const Welcome = () => {
   );
 };
 
-export default Welcome; 
+export default Welcome;

@@ -13,6 +13,7 @@ import { environment } from '../../../environments/environment';
     <div class="verify-page">
       <div class="verify-container">
         <div class="verify-header">
+          <img src="assets/finanzo-logo.jpg" alt="Finanzo" class="logo">
           <h2>Weryfikacja konta</h2>
           <p>Podaj kod weryfikacyjny wysłany na Twój adres email</p>
         </div>
@@ -69,20 +70,22 @@ import { environment } from '../../../environments/environment';
     .verify-page {
       min-height: 100vh;
       display: flex;
-
       align-items: center;
       justify-content: center;
-      background: linear-gradient(rgba(41, 128, 185, 0.9), rgba(44, 62, 80, 0.9));
-      padding: 2rem;
+      background-color: #14162E;
+      margin: 0;
+      padding: 0;
+      position: relative;
     }
 
     .verify-container {
-      background: white;
-      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.95);
       padding: 2.5rem;
       width: 100%;
       max-width: 500px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      z-index: 1;
     }
 
     .verify-header {
@@ -92,13 +95,14 @@ import { environment } from '../../../environments/environment';
 
     .verify-header h2 {
       color: #2c3e50;
-      font-size: 2rem;
+      font-size: 1.8rem;
       margin-bottom: 0.5rem;
+      font-weight: 600;
     }
 
     .verify-header p {
       color: #7f8c8d;
-      font-size: 1.1rem;
+      font-size: 1rem;
     }
 
     .verify-form {
@@ -143,8 +147,8 @@ import { environment } from '../../../environments/environment';
 
     input:focus {
       outline: none;
-      border-color: #3498db;
-      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     input::placeholder {
@@ -175,7 +179,7 @@ import { environment } from '../../../environments/environment';
     }
 
     .submit-btn {
-      background: #3498db;
+      background: #3b82f6;
       color: white;
       border: none;
       padding: 1rem;
@@ -192,14 +196,12 @@ import { environment } from '../../../environments/environment';
     }
 
     .submit-btn:hover {
-      background: #2980b9;
-      transform: translateY(-2px);
+      background: #2563eb;
     }
 
     .submit-btn:disabled {
-      background: #bdc3c7;
+      background: #94a3b8;
       cursor: not-allowed;
-      transform: none;
     }
 
     .submit-btn i {
@@ -213,13 +215,21 @@ import { environment } from '../../../environments/environment';
     }
 
     .login-link a {
-      color: #3498db;
+      color: #3b82f6;
       text-decoration: none;
       font-weight: 500;
     }
 
     .login-link a:hover {
       text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .verify-container {
+        padding: 2rem;
+        margin: 1rem;
+        max-width: 100%;
+      }
     }
   `]
 })
