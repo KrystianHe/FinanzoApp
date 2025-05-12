@@ -14,8 +14,8 @@ import { ParticlesComponent } from '../../shared/components/particles.component'
       <app-particles></app-particles>
       <div class="register-container">
         <div class="register-header">
-          <img src="assets/logoMW.jpg" alt="MW Logo" class="logo">
-          <h2>Dołącz do MojeWydatki</h2>
+          <img src="assets/finanzo-logo.jpg" alt="Finanzo" class="logo">
+          <h2>Dołącz do Finanzo</h2>
           <p>Stwórz konto i zacznij kontrolować swoje finanse</p>
         </div>
 
@@ -154,76 +154,84 @@ import { ParticlesComponent } from '../../shared/components/particles.component'
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      max-width: 100%;
+      overflow: hidden;
+    }
+    
     .register-page {
-      min-height: 100vh;
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #2980b9 0%, #2c3e50 100%);
-      padding: 0;
+      background-color: #14162E;
+      overflow: hidden;
       position: relative;
     }
 
     .register-container {
       background: rgba(255, 255, 255, 0.95);
-      padding: 2rem;
-      width: 100%;
-      max-width: 500px;
+      padding: 1.8rem;
+      width: 92%;
+      max-width: 480px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-      border-radius: 10px;
-      position: relative;
+      border-radius: 12px;
       z-index: 1;
     }
 
     .register-header {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
 
     .logo {
       width: 120px;
       height: auto;
-      margin: 0 auto 1.5rem;
+      margin: 0 auto 1rem;
       display: block;
+      object-fit: contain;
+      border-radius: 8px;
     }
 
     .register-header h2 {
       color: #2c3e50;
-      font-size: 1.25rem;
-      margin-bottom: 0.25rem;
+      font-size: 1.3rem;
+      margin-bottom: 0.3rem;
       font-weight: 600;
     }
 
     .register-header p {
       color: #7f8c8d;
       font-size: 0.85rem;
+      margin-bottom: 0.5rem;
     }
 
     .register-form {
-      max-width: 500px;
-      margin: 0 auto;
-      width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.8rem;
     }
 
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
+      gap: 0.9rem;
       width: 100%;
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
+      gap: 0.2rem;
     }
 
     label {
       color: #34495e;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 500;
     }
 
@@ -234,7 +242,7 @@ import { ParticlesComponent } from '../../shared/components/particles.component'
 
     .input-group i {
       position: absolute;
-      left: 0.75rem;
+      left: 0.8rem;
       top: 50%;
       transform: translateY(-50%);
       color: #94a3b8;
@@ -244,17 +252,17 @@ import { ParticlesComponent } from '../../shared/components/particles.component'
 
     input {
       width: 100%;
-      padding: 0.6rem 0.75rem 0.6rem 2rem;
+      padding: 0.65rem 0.65rem 0.65rem 2.2rem;
       border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 0.85rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
       background: #f8fafc;
       transition: all 0.3s ease;
       box-sizing: border-box;
     }
 
     input[type="date"] {
-      padding-right: 0.75rem;
+      padding-right: 0.65rem;
     }
 
     input::placeholder {
@@ -269,7 +277,7 @@ import { ParticlesComponent } from '../../shared/components/particles.component'
     }
 
     .terms {
-      margin-top: 0.25rem;
+      margin-top: 0.2rem;
     }
 
     .checkbox-group {
@@ -279,8 +287,8 @@ import { ParticlesComponent } from '../../shared/components/particles.component'
     }
 
     .checkbox-group input[type="checkbox"] {
-      width: 1rem;
-      height: 1rem;
+      width: 0.9rem;
+      height: 0.9rem;
       margin: 0;
     }
 
@@ -294,13 +302,13 @@ import { ParticlesComponent } from '../../shared/components/particles.component'
       background: #3b82f6;
       color: white;
       border: none;
-      padding: 0.6rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
+      padding: 0.7rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
       font-weight: 500;
       cursor: pointer;
       width: 100%;
-      margin-top: 0.25rem;
+      margin-top: 0.4rem;
       transition: all 0.3s ease;
     }
 
@@ -316,7 +324,7 @@ import { ParticlesComponent } from '../../shared/components/particles.component'
     .error-alert {
       background: #fee2e2;
       color: #dc2626;
-      padding: 0.6rem;
+      padding: 0.5rem;
       border-radius: 6px;
       font-size: 0.8rem;
       text-align: center;
@@ -325,7 +333,7 @@ import { ParticlesComponent } from '../../shared/components/particles.component'
 
     .login-link {
       text-align: center;
-      margin-top: 1rem;
+      margin-top: 0.8rem;
       color: #64748b;
       font-size: 0.8rem;
     }
@@ -342,36 +350,29 @@ import { ParticlesComponent } from '../../shared/components/particles.component'
 
     .error-message {
       color: #dc2626;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       margin-top: 0.1rem;
     }
 
     @media (max-width: 768px) {
-      .register-page {
-        padding: 0.5rem;
+      .register-container {
+        padding: 1.5rem;
+        margin: 1rem;
+        max-width: 100%;
       }
 
-      .register-container {
-        padding: 1rem;
+      .logo {
+        width: 100px;
+        margin: 0 auto 1rem;
       }
 
       .form-row {
         grid-template-columns: 1fr;
-        gap: 0.5rem;
+        gap: 0.8rem;
       }
 
       .register-form {
-        gap: 0.5rem;
-      }
-    }
-
-    @media (min-height: 800px) {
-      .register-container {
-        padding: 2rem;
-      }
-
-      .register-form {
-        gap: 1rem;
+        gap: 0.8rem;
       }
     }
   `]
@@ -380,6 +381,7 @@ export class RegisterComponent {
   registerForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
 
   constructor(
     private fb: FormBuilder,
@@ -410,26 +412,37 @@ export class RegisterComponent {
   }
 
   onSubmit() {
-    if (this.registerForm.valid) {
-      this.isLoading = true;
-      this.errorMessage = '';
+    this.register();
+  }
 
+  register(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    if (this.registerForm.valid) {
       const registrationData = {
-        ...this.registerForm.value,
+        email: this.registerForm.value.email,
+        password: this.registerForm.value.password,
+        firstName: this.registerForm.value.firstName,
+        lastName: this.registerForm.value.lastName,
         dateOfBirth: this.formatDate(this.registerForm.value.dateOfBirth)
       };
 
       this.authService.register(registrationData).subscribe({
-        next: () => {
+        next: (response) => {
+          this.isLoading = false;
           this.router.navigate(['/verify'], {
             queryParams: { email: registrationData.email }
           });
         },
         error: (error) => {
           this.isLoading = false;
-          this.errorMessage = error.error?.message || 'Wystąpił błąd podczas rejestracji';
+          this.errorMessage = error.error?.message || 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.';
         }
       });
+    } else {
+      this.isLoading = false;
+      this.errorMessage = 'Wypełnij poprawnie wszystkie pola.';
     }
   }
 

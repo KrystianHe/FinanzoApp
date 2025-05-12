@@ -1,86 +1,60 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { ParticlesComponent } from '../shared/components/particles.component';
+import { FeaturesModalComponent } from '../shared/components/features-modal.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ParticlesComponent, FeaturesModalComponent],
   template: `
     <div class="home-container">
       <div class="hero-section">
+        <app-particles></app-particles>
         <div class="hero-content">
-          <h1>MojeWydatki</h1>
+          <div class="logo">
+            <img src="assets/finanzo-logo.jpg" alt="Finanzo" class="logo-img">
+          </div>
+          <h1>Witaj w Finanzo</h1>
           <p class="subtitle">
-            Inteligentna aplikacja do zarządzania finansami osobistymi. Kontroluj wydatki, planuj budżet i osiągaj swoje cele finansowe.
+            Inteligentna aplikacja do zarządzania finansami osobistymi.
+            Kontroluj wydatki, planuj budżet i osiągaj swoje cele finansowe.
           </p>
           <div class="cta-buttons">
             <a routerLink="/register" class="btn primary">Zarejestruj się za darmo</a>
             <a routerLink="/login" class="btn secondary">Zaloguj się</a>
           </div>
+          <button class="features-button" (click)="showFeaturesModal = true">
+            Dlaczego Finanzo?
+          </button>
         </div>
+        <div class="watermark">Created by Kryha</div>
       </div>
 
-      <section class="features">
-        <h2>Dlaczego MojeWydatki?</h2>
-        <p class="section-description">
-          Nasza aplikacja pomaga w efektywnym zarządzaniu finansami osobistymi dzięki intuicyjnym narzędziom i przejrzystym statystykom.
-        </p>
-
-        <div class="features-grid">
-          <div class="feature-card">
-            <i class="fas fa-chart-line"></i>
-            <h3>Śledzenie wydatków</h3>
-            <p>Łatwe rejestrowanie i kategoryzowanie wydatków na bieżąco. Wydatki możesz dodawać szybko i wygodnie z każdego urządzenia.</p>
-          </div>
-
-          <div class="feature-card">
-            <i class="fas fa-chart-bar"></i>
-            <h3>Zaawansowane statystyki</h3>
-            <p>Przejrzyste wykresy i raporty pomagające zrozumieć, na co wydajesz pieniądze. Analizuj swoje wydatki według kategorii i planuj budżet.</p>
-          </div>
-
-          <div class="feature-card">
-            <i class="fas fa-mobile-alt"></i>
-            <h3>Dostęp z każdego urządzenia</h3>
-            <p>Aplikacja dostępna na komputerze, tablecie i telefonie - zawsze miej swoje finanse pod kontrolą, gdziekolwiek jesteś.</p>
-          </div>
-
-          <div class="feature-card">
-            <i class="fas fa-shield-alt"></i>
-            <h3>Bezpieczeństwo danych</h3>
-            <p>Twoje dane finansowe są bezpieczne dzięki zaawansowanym technologiom szyfrowania i dwuetapowej weryfikacji logowania.</p>
-          </div>
-
-          <div class="feature-card">
-            <i class="fas fa-file-alt"></i>
-            <h3>Raportowanie</h3>
-            <p>Generuj i eksportuj raporty finansowe za dowolny okres. Pobieraj dane w formatach CSV i PDF do dalszej analizy.</p>
-          </div>
-
-          <div class="feature-card">
-            <i class="fas fa-gift"></i>
-            <h3>Za darmo!</h3>
-            <p>MojeWydatki jest całkowicie darmowe. Nie ma ukrytych opłat, reklam ani ograniczeń funkcjonalności.</p>
-          </div>
-        </div>
-      </section>
+      <app-features-modal
+        *ngIf="showFeaturesModal"
+        (closeModal)="showFeaturesModal = false">
+      </app-features-modal>
     </div>
   `,
   styles: [`
     .home-container {
       min-height: 100vh;
+      position: relative;
     }
 
     .hero-section {
       position: relative;
-      background-image: url('/assets/images/finance-bg.jpg');
-      background-size: cover;
-      background-position: center;
       padding: 6rem 2rem;
       text-align: center;
       color: white;
       overflow: hidden;
+      background: #14162E;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .hero-section::before {
@@ -90,7 +64,7 @@ import { RouterModule } from '@angular/router';
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(rgba(41, 128, 185, 0.9), rgba(44, 62, 80, 0.9));
+      background: rgba(0, 0, 0, 0.2);
       z-index: 1;
     }
 
@@ -99,6 +73,17 @@ import { RouterModule } from '@angular/router';
       z-index: 2;
       max-width: 1200px;
       margin: 0 auto;
+    }
+
+    .logo {
+      margin-bottom: 1.5rem;
+    }
+
+    .logo-img {
+      width: 180px;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
     .hero-section h1 {
@@ -121,6 +106,7 @@ import { RouterModule } from '@angular/router';
       gap: 1rem;
       justify-content: center;
       margin-top: 2rem;
+      margin-bottom: 2rem;
     }
 
     .btn {
@@ -135,7 +121,7 @@ import { RouterModule } from '@angular/router';
 
     .btn.primary {
       background: white;
-      color: #2980b9;
+      color: #1e4976;
     }
 
     .btn.secondary {
@@ -157,60 +143,39 @@ import { RouterModule } from '@angular/router';
       background: rgba(255, 255, 255, 0.1);
     }
 
-    .features {
-      padding: 4rem 2rem;
-      background: #f8f9fa;
+    .features-button {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      margin-top: 1rem;
+      text-decoration: underline;
+      transition: all 0.3s ease;
     }
 
-    .features h2 {
-      text-align: center;
-      color: #2c3e50;
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
+    .features-button:hover {
+      transform: translateY(-2px);
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     }
 
-    .section-description {
-      text-align: center;
-      color: #7f8c8d;
-      max-width: 800px;
-      margin: 0 auto 3rem;
+    .watermark {
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.9rem;
+      font-style: italic;
+      z-index: 2;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+      letter-spacing: 1px;
     }
 
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .feature-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 15px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-5px);
-    }
-
-    .feature-card i {
-      font-size: 2rem;
-      color: #3498db;
-      margin-bottom: 1rem;
-    }
-
-    .feature-card h3 {
-      color: #2c3e50;
-      margin-bottom: 1rem;
-      font-size: 1.25rem;
-    }
-
-    .feature-card p {
-      color: #7f8c8d;
-      line-height: 1.6;
+    .watermark:hover {
+      color: rgba(255, 255, 255, 0.8);
+      transition: color 0.3s ease;
     }
 
     @media (max-width: 768px) {
@@ -233,10 +198,12 @@ import { RouterModule } from '@angular/router';
         text-align: center;
       }
 
-      .features-grid {
-        grid-template-columns: 1fr;
+      .watermark {
+        font-size: 0.8rem;
       }
     }
   `]
 })
-export class HomeComponent {} 
+export class HomeComponent {
+  showFeaturesModal = false;
+}

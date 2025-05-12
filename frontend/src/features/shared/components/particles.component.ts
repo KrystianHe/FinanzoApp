@@ -31,8 +31,8 @@ export class ParticlesComponent implements AfterViewInit, OnDestroy {
   private mouse = { x: 0, y: 0 };
   private animationFrameId: number = 0;
   private readonly particleCount = 50;
-  private readonly connectionDistance = 150;
-  private readonly particleRadius = 2;
+  private readonly connectionDistance = 170;
+  private readonly particleRadius = 3;
 
   ngAfterViewInit() {
     const canvas = this.canvasRef.nativeElement;
@@ -89,7 +89,7 @@ export class ParticlesComponent implements AfterViewInit, OnDestroy {
 
   private animate() {
     this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    
+
     // Update and draw particles
     this.particles.forEach(particle => {
       particle.update(window.innerWidth, window.innerHeight);
@@ -140,7 +140,7 @@ class Particle {
   update(width: number, height: number) {
     if (this.x < 0 || this.x > width) this.vx *= -1;
     if (this.y < 0 || this.y > height) this.vy *= -1;
-    
+
     this.x += this.vx;
     this.y += this.vy;
   }
@@ -148,7 +148,7 @@ class Particle {
   draw(ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
     ctx.fill();
   }
-} 
+}
