@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["nodejs", "npm"]
+
+[phases.build]
+cmds = ["npm ci", "npm run build -- --configuration production --base-href /"]
+
+[start]
+cmd = "npm run serve" 
