@@ -1,13 +1,13 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
-    "builder": "DOCKERFILE",
-    "dockerfilePath": "Dockerfile"
+    "builder": "NIXPACKS",
+    "buildCommand": "npm ci && npm run build -- --configuration production --base-href /"
   },
   "deploy": {
     "runtime": "V2",
     "numReplicas": 1,
-    "startCommand": "nginx -g 'daemon off;'",
+    "startCommand": "npm run serve",
     "sleepApplication": false,
     "multiRegionConfig": {
       "europe-west4-drams3a": {
