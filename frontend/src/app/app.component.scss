@@ -1,72 +1,205 @@
 .app-container {
   display: flex;
+  min-height: 100vh;
+  background-color: #14162E;
+  color: #e4e6f1;
+  position: relative;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #1A1C36;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.logo-container {
+  padding: 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.logo-container span {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+  flex: 1;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.8rem 1.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.menu-item i {
+  font-size: 1.2rem;
+  width: 30px;
+  margin-right: 0.5rem;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  cursor: pointer;
+}
+
+.menu-item.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+  border-left: 3px solid #3b82f6;
+}
+
+.menu-separator {
+  height: 1px;
+  margin: auto 1.5rem 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.logout-item {
+  margin-top: auto;
+  margin-bottom: 1rem;
+  color: #e55c5c;
+}
+
+.logout-item:hover {
+  background: rgba(229, 92, 92, 0.1);
+  color: #ff6b6b;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
+.main-content.with-sidebar {
+  margin-left: 250px;
+  width: calc(100% - 250px);
+}
+
+.main-content.without-sidebar {
+  margin-left: 0;
+  width: 100%;
+}
+
 .app-header {
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-  color: white;
+  background: linear-gradient(135deg, #1e2859 0%, #2a3998 100%);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.logo {
+.user-info, .date-time {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1.5rem;
-  font-weight: bold;
 }
 
-.main-nav {
-  display: flex;
-  gap: 1.5rem;
-  
-  a {
-    color: white;
-    text-decoration: none;
-    padding: 0.5rem 0;
-    position: relative;
-    
-    &:after {
-      content: '';
-      position: absolute;
-      width: 0;
-      height: 2px;
-      background: white;
-      bottom: 0;
-      left: 0;
-      transition: width 0.3s;
-    }
-    
-    &:hover:after, &.active:after {
-      width: 100%;
-    }
-  }
+.user-info i, .date-time i {
+  font-size: 1.2rem;
 }
 
 .app-content {
   flex: 1;
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1400px;
   width: 100%;
   margin: 0 auto;
+  overflow-y: auto;
 }
 
-.app-footer {
-  background-color: #f8f9fa;
-  padding: 1rem;
-  text-align: center;
-  color: #6c757d;
-  font-size: 0.9rem;
+.auth-container {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 h1 {
-  color: #333;
+  color: #e4e6f1;
   margin-bottom: 20px;
-  text-align: center;
+}
+
+.card {
+  background-color: #1A1C36;
+  border-radius: 0.8rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+/* Dodajemy specjalne style do komponentów logowania i rejestracji */
+app-login, app-register, app-auth {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000; /* wyższy niż pasek boczny */
+  background-color: #14162E;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+  }
+  
+  .logo-container {
+    padding: 1rem;
+  }
+  
+  .logo {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .logo-container span,
+  .menu-item span {
+    display: none;
+  }
+  
+  .menu-item {
+    padding: 0.8rem;
+    justify-content: center;
+  }
+  
+  .menu-item i {
+    margin-right: 0;
+  }
+  
+  .main-content.with-sidebar {
+    margin-left: 70px;
+    width: calc(100% - 70px);
+  }
 } 

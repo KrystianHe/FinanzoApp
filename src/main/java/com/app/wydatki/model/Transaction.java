@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity(name = "Transaction")
 @Table(name = "transactions")
@@ -35,7 +36,7 @@ public class Transaction {
     
     @Column(nullable = false)
     private LocalDate date;
-    
+
     @Column
     private String description;
     

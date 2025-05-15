@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -126,7 +125,6 @@ public class TransactionServiceImpl implements TransactionService {
     public List<Transaction> getTransactionsExcludingCategory(String userEmail, LocalDate startDate, LocalDate endDate, String excludedCategory) {
         return transactionRepository.findTransactionsExcludingCategory(userEmail, startDate, endDate, excludedCategory);
     }
-
 
     @Override
     public List<Transaction> filterTransactions(String userEmail, TransactionFilterDTO filterDTO) {

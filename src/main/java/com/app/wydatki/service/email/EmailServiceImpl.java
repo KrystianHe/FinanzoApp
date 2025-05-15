@@ -112,7 +112,7 @@ public class EmailServiceImpl implements EmailService {
             Mail mail = new Mail(from, subject, to, content);
 
             // Add logo as inline attachment
-            ClassPathResource logoResource = new ClassPathResource("static/logoMW.jpg");
+            ClassPathResource logoResource = new ClassPathResource("static/finanzo-logo.jpg");
             byte[] logoBytes = Files.readAllBytes(logoResource.getFile().toPath());
             String base64Logo = Base64.getEncoder().encodeToString(logoBytes);
 

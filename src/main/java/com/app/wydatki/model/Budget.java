@@ -1,5 +1,6 @@
 package com.app.wydatki.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -45,7 +48,7 @@ public class Budget {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    
+
     public BigDecimal getRemainingAmount() {
         return amount.subtract(spentAmount);
     }

@@ -25,7 +25,7 @@ import { FeaturesModalComponent } from '../shared/components/features-modal.comp
             <a routerLink="/register" class="btn primary">Zarejestruj się za darmo</a>
             <a routerLink="/login" class="btn secondary">Zaloguj się</a>
           </div>
-          <button class="features-button" (click)="showFeaturesModal = true">
+          <button class="pulse-button" (click)="showFeaturesModal = true">
             Dlaczego Finanzo?
           </button>
         </div>
@@ -143,21 +143,44 @@ import { FeaturesModalComponent } from '../shared/components/features-modal.comp
       background: rgba(255, 255, 255, 0.1);
     }
 
-    .features-button {
-      background: transparent;
-      border: none;
+    .pulse-button {
+      position: relative;
+      background: linear-gradient(45deg, #fcf9f9, #544f4f);
       color: white;
-      font-size: 1.1rem;
+      border: none;
+      border-radius: 30px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 600;
       cursor: pointer;
-      padding: 0.5rem 1rem;
-      margin-top: 1rem;
-      text-decoration: underline;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
       transition: all 0.3s ease;
+      margin-top: 2rem;
+      animation: pulse 2s infinite;
     }
 
-    .features-button:hover {
-      transform: translateY(-2px);
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    .pulse-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      animation-play-state: paused;
+    }
+
+    .pulse-button:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 15px rgba(59, 130, 246, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+      }
     }
 
     .watermark {
@@ -206,4 +229,8 @@ import { FeaturesModalComponent } from '../shared/components/features-modal.comp
 })
 export class HomeComponent {
   showFeaturesModal = false;
+
+  openWhyFinanzoModal() {
+    alert('Finanzo to nowoczesna aplikacja do zarządzania finansami osobistymi, która pomaga śledzić wydatki, planować budżet i osiągać cele oszczędnościowe.');
+  }
 }
