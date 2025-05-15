@@ -1,0 +1,8 @@
+[build]
+builder = "nixpacks"
+buildCommand = "npm ci && npm run build -- --configuration production --base-href /"
+
+[deploy]
+startCommand = "npm run serve"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10 
