@@ -2,27 +2,29 @@ FROM node:18-alpine as build
 
 WORKDIR /app
 
-# Copy package.json and install dependencies
+# Kopiowanie i instalacja zależności
 COPY package*.json ./
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
-# Copy source code and build
+# Kopiowanie i budowanie aplikacji
 COPY . .
-RUN npm run build -- --configuration production --base-href /
+RUN npm run build
 
-# Serve with nginx
-FROM nginx:alpine
+# Druga faza - serwowanie za pomocą NGINX
+FROM nginx:stable-alpine
 
-# Copy nginx configuration as template
-COPY nginx.conf /etc/nginx/conf.d/default.conf.template
+# Kopiowanie plików konfiguracyjnych
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy entrypoint script
-COPY entrypoint.sh /docker-entrypoint.d/40-envsubst-on-nginx-conf.sh
-RUN chmod +x /docker-entrypoint.d/40-envsubst-on-nginx-conf.sh
+# Kopiowanie i ustawianie skryptu entrypoint
+COPY docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
 
-# Copy built application
-COPY --from=build /app/dist/frontend /usr/share/nginx/html
+# Kopiowanie skompilowanej aplikacji
+COPY --from=build /app/dist /usr/share/nginx/html
 
+# Eksponowanie portu
 EXPOSE 80
 
-# NGINX's docker image already uses CMD ["nginx", "-g", "daemon off;"] 
+# Ustawienie skryptu entrypoint
+ENTRYPOINT ["/docker-entrypoint.sh"] 
