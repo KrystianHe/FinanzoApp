@@ -12,7 +12,9 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:17-jre-focal
 
 WORKDIR /app
-COPY --from=builder /app/target/Wydatki-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/target/Wydatki-0.0.1-SNAPSHOT.jar ./app.jar
+COPY start.sh ./start.sh
+RUN chmod +x ./start.sh
 
 EXPOSE 8080
-ENTRYPOINT ["java", "-Xmx256m", "-Xms128m", "-XX:MaxMetaspaceSize=128m", "-jar", "app.jar"]
+CMD ["./start.sh"]
