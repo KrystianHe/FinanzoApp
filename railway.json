@@ -7,7 +7,6 @@
   "deploy": {
     "runtime": "V2",
     "numReplicas": 1,
-    "startCommand": "java -Xmx256m -Xms128m -XX:MaxMetaspaceSize=128m -jar /app/app.jar",
     "sleepApplication": false,
     "multiRegionConfig": {
       "europe-west4-drams3a": {
