@@ -91,7 +91,7 @@ Chart.register(...registerables);
               </div>
             </div>
           </div>
-          
+
           <div class="categories-section">
             <h3>Kategorie wydatków</h3>
             <div class="categories-list">
@@ -425,13 +425,13 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   totalExpenses: number = 0;
   expenseChangePercentage: number = 0;
   expensesByCategory: ExpenseByCategory[] = [];
-  
+
   private dateTimeInterval: any;
   private chart: Chart | null = null;
 
   constructor(
-    private router: Router, 
-    private route: ActivatedRoute, 
+    private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService,
     private expenseService: ExpenseService
   ) {}
@@ -524,7 +524,7 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
       this.chart.data.labels = this.expensesByCategory.map(cat => cat.categoryName);
       this.chart.data.datasets[0].data = this.expensesByCategory.map(cat => cat.totalAmount);
       this.chart.data.datasets[0].backgroundColor = this.expensesByCategory.map(cat => cat.categoryColor);
-      
+
       this.chart.update();
     }
   }

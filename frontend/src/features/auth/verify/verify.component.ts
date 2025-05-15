@@ -69,6 +69,19 @@ import {ParticlesComponent} from '../../shared/components/particles.component';
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      max-width: 100%;
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1001; /* wyższy niż sidebar */
+      background-color: #14162E;
+    }
+
     .verify-page {
       min-height: 100vh;
       display: flex;

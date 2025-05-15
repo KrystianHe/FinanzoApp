@@ -59,3 +59,8 @@ yarn-error.log
 .angular/
 /frontend/.angular/
 /frontend/dist/
+
+# Docker
+.env
+.docker/
+docker-data/

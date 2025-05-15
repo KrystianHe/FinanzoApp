@@ -84,6 +84,16 @@ import { ParticlesComponent } from '../../shared/components/particles.component'
       height: 100vh;
       max-width: 100%;
       overflow: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1001; /* wyższy niż sidebar */
+      background-color: #14162E;
+      /* Dodaję style, które ukryją sidebar */
+      & ~ app-root .sidebar,
+      & ~ app-root .app-header {
+        display: none !important;
+      }
     }
 
     .login-page {

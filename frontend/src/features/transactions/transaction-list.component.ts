@@ -7,15 +7,15 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="transaction-page">
+    <div class="transaction-container">
       <div class="transaction-header">
         <h1>Transakcje</h1>
-        <button class="add-transaction">
+        <button class="add-transaction-btn">
           <i class="fas fa-plus"></i> Dodaj transakcję
         </button>
       </div>
 
-      <div class="filters-section">
+      <div class="card filters-section">
         <div class="filters-row">
           <div class="search-container">
             <i class="fas fa-search"></i>
@@ -69,7 +69,7 @@ import { FormsModule } from '@angular/forms';
       </div>
 
       <div class="summary-cards">
-        <div class="summary-card income">
+        <div class="card summary-card income">
           <div class="card-icon">
             <i class="fas fa-arrow-up"></i>
           </div>
@@ -78,7 +78,7 @@ import { FormsModule } from '@angular/forms';
             <p class="amount">5200 zł</p>
           </div>
         </div>
-        <div class="summary-card expenses">
+        <div class="card summary-card expenses">
           <div class="card-icon">
             <i class="fas fa-arrow-down"></i>
           </div>
@@ -87,7 +87,7 @@ import { FormsModule } from '@angular/forms';
             <p class="amount">1619,58 zł</p>
           </div>
         </div>
-        <div class="summary-card balance">
+        <div class="card summary-card balance">
           <div class="card-icon">
             <i class="fas fa-wallet"></i>
           </div>
@@ -98,7 +98,7 @@ import { FormsModule } from '@angular/forms';
         </div>
       </div>
 
-      <div class="transactions-table-container">
+      <div class="card transactions-table-container">
         <table class="transactions-table">
           <thead>
             <tr>
@@ -237,65 +237,68 @@ import { FormsModule } from '@angular/forms';
             </tr>
           </tbody>
         </table>
-      </div>
-
-      <div class="pagination">
-        <button class="page-btn" [disabled]="currentPage === 1">
-          <i class="fas fa-chevron-left"></i>
-        </button>
-        <span class="page-info">Strona {{ currentPage }} z {{ totalPages }}</span>
-        <button class="page-btn" [disabled]="currentPage === totalPages">
-          <i class="fas fa-chevron-right"></i>
-        </button>
+        
+        <div class="pagination">
+          <button [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span>Strona {{ currentPage }} z {{ totalPages }}</span>
+          <button [disabled]="currentPage === totalPages" (click)="currentPage = currentPage + 1">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
       </div>
     </div>
   `,
   styles: [`
-    .transaction-page {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-      font-family: 'Roboto', sans-serif;
+    .transaction-container {
+      padding: 1rem;
     }
 
     .transaction-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
 
-    .transaction-header h1 {
-      font-size: 2rem;
-      color: #2c3e50;
+    h1 {
+      color: #e4e6f1;
       margin: 0;
+      font-size: 1.8rem;
+      font-weight: 600;
     }
 
-    .add-transaction {
-      background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+    .add-transaction-btn {
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
       color: white;
       border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      font-weight: 500;
+      border-radius: 0.5rem;
+      padding: 0.8rem 1.2rem;
+      font-weight: 600;
       cursor: pointer;
+      transition: all 0.2s;
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
 
-    .add-transaction:hover {
+    .add-transaction-btn:hover {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(78, 84, 200, 0.2);
+    }
+
+    .card {
+      background-color: #1A1C36;
+      border-radius: 0.8rem;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
     }
 
     .filters-section {
-      background: white;
-      border-radius: 16px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      margin-bottom: 2rem;
+      padding: 1.2rem;
     }
 
     .filters-row {
@@ -305,14 +308,10 @@ import { FormsModule } from '@angular/forms';
       margin-bottom: 1rem;
     }
 
-    .filters-row:last-child {
-      margin-bottom: 0;
-    }
-
     .search-container {
       position: relative;
       flex: 1;
-      min-width: 250px;
+      min-width: 200px;
     }
 
     .search-container i {
@@ -320,127 +319,114 @@ import { FormsModule } from '@angular/forms';
       left: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color: #7f8c8d;
+      color: #6b7280;
     }
 
     .search-container input {
       width: 100%;
-      padding: 0.75rem 1rem 0.75rem 2.5rem;
-      border: 2px solid #ecf0f1;
-      border-radius: 8px;
-      font-size: 1rem;
+      padding: 0.8rem 1rem 0.8rem 2.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid #374151;
+      background-color: #242848;
+      color: #e4e6f1;
+      font-size: 0.9rem;
     }
 
     .filter-group {
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      flex-direction: column;
+      min-width: 150px;
     }
 
     .filter-group label {
-      font-size: 0.9rem;
-      color: #7f8c8d;
-      white-space: nowrap;
+      margin-bottom: 0.3rem;
+      font-size: 0.85rem;
+      color: #9ca3af;
     }
 
     .filter-group select {
-      padding: 0.75rem 1rem;
-      border: 2px solid #ecf0f1;
-      border-radius: 8px;
-      font-size: 1rem;
-      background-color: white;
-      color: #2c3e50;
+      padding: 0.8rem;
+      border-radius: 0.5rem;
+      border: 1px solid #374151;
+      background-color: #242848;
+      color: #e4e6f1;
+      font-size: 0.9rem;
     }
 
     .date-range {
       display: flex;
       gap: 1rem;
+      width: 100%;
     }
 
     .date-input {
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .date-input label {
-      font-size: 0.9rem;
-      color: #7f8c8d;
+      flex-direction: column;
+      flex: 1;
     }
 
     .date-input input {
-      padding: 0.75rem 1rem;
-      border: 2px solid #ecf0f1;
-      border-radius: 8px;
-      font-size: 1rem;
+      padding: 0.8rem;
+      border-radius: 0.5rem;
+      border: 1px solid #374151;
+      background-color: #242848;
+      color: #e4e6f1;
+      font-size: 0.9rem;
     }
 
     .summary-cards {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 1.5rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
 
     .summary-card {
-      background: white;
-      border-radius: 16px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       display: flex;
       align-items: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .summary-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
     }
 
     .card-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 1.2rem;
       margin-right: 1rem;
-      font-size: 1.25rem;
-      color: white;
     }
 
     .income .card-icon {
-      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+      background-color: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
     }
 
     .expenses .card-icon {
-      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      background-color: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
     }
 
     .balance .card-icon {
-      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      background-color: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
     }
 
     .card-content h3 {
-      font-size: 1rem;
-      color: #7f8c8d;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
+      margin: 0 0 0.3rem;
+      font-size: 0.9rem;
+      color: #9ca3af;
     }
 
-    .amount {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #2c3e50;
+    .card-content .amount {
       margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #e4e6f1;
     }
 
     .transactions-table-container {
-      background: white;
-      border-radius: 16px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      margin-bottom: 2rem;
       overflow-x: auto;
     }
 
@@ -449,81 +435,84 @@ import { FormsModule } from '@angular/forms';
       border-collapse: collapse;
     }
 
-    .transactions-table th,
+    .transactions-table th, 
     .transactions-table td {
       padding: 1rem;
       text-align: left;
+      border-bottom: 1px solid #2d3748;
+    }
+
+    .transactions-table thead {
+      background-color: #242848;
     }
 
     .transactions-table th {
+      color: #9ca3af;
       font-weight: 500;
-      color: #7f8c8d;
-      border-bottom: 2px solid #ecf0f1;
+      font-size: 0.9rem;
     }
 
     .th-content {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
       cursor: pointer;
     }
 
+    .th-content i {
+      margin-left: 0.5rem;
+      font-size: 0.8rem;
+    }
+
     .th-content:hover {
-      color: #3498db;
-    }
-
-    .transactions-table tbody tr {
-      border-bottom: 1px solid #ecf0f1;
-      transition: background-color 0.3s ease;
-    }
-
-    .transactions-table tbody tr:hover {
-      background-color: #f8f9fa;
+      color: #3b82f6;
     }
 
     .category {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
     }
 
     .category-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-size: 0.9rem;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      margin-right: 0.8rem;
+      font-size: 1rem;
     }
 
     .grocery {
-      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+      background-color: rgba(249, 115, 22, 0.2);
+      color: #f97316;
     }
 
     .salary {
-      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+      background-color: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
     }
 
     .entertainment {
-      background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+      background-color: rgba(168, 85, 247, 0.2);
+      color: #a855f7;
     }
 
     .transport {
-      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      background-color: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
     }
 
-    .utilities {
-      background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+    .amount {
+      font-weight: 600;
     }
 
     .amount.income {
-      color: #2ecc71;
+      color: #22c55e;
     }
 
     .amount.expense {
-      color: #e74c3c;
+      color: #ef4444;
     }
 
     .actions {
@@ -532,73 +521,72 @@ import { FormsModule } from '@angular/forms';
     }
 
     .action-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-    }
-
-    .action-btn:hover {
-      transform: translateY(-2px);
+      transition: all 0.2s;
     }
 
     .edit {
-      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      color: #3b82f6;
     }
 
     .delete {
-      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      color: #ef4444;
+    }
+
+    .action-btn:hover {
+      background-color: #242848;
     }
 
     .pagination {
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 1rem;
       gap: 1rem;
     }
 
-    .page-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
+    .pagination button {
+      background: none;
+      border: none;
+      color: #3b82f6;
+      cursor: pointer;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: white;
-      border: 2px solid #ecf0f1;
-      color: #2c3e50;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s;
     }
 
-    .page-btn:hover:not([disabled]) {
-      border-color: #3498db;
-      color: #3498db;
+    .pagination button:hover:not([disabled]) {
+      background-color: #242848;
     }
 
-    .page-btn[disabled] {
-      opacity: 0.5;
+    .pagination button[disabled] {
+      color: #6b7280;
       cursor: not-allowed;
     }
 
-    .page-info {
-      font-size: 0.9rem;
-      color: #7f8c8d;
-    }
-
     @media (max-width: 768px) {
-      .filter-group, .search-container {
+      .filters-row {
+        flex-direction: column;
+      }
+      
+      .search-container {
         width: 100%;
       }
       
-      .actions {
-        flex-direction: column;
+      .summary-cards {
+        grid-template-columns: 1fr;
       }
     }
   `]
@@ -616,13 +604,12 @@ export class TransactionListComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
-    // Initialize with current month
-    const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const now = new Date();
+    const lastMonthDate = new Date();
+    lastMonthDate.setMonth(now.getMonth() - 1);
     
-    this.startDate = this.formatDate(firstDay);
-    this.endDate = this.formatDate(lastDay);
+    this.startDate = this.formatDate(lastMonthDate);
+    this.endDate = this.formatDate(now);
   }
 
   formatDate(date: Date): string {
@@ -630,7 +617,6 @@ export class TransactionListComponent implements OnInit {
   }
 
   sortBy(column: string): void {
-    // Implementation for sorting
     console.log(`Sorting by ${column}`);
   }
 } 

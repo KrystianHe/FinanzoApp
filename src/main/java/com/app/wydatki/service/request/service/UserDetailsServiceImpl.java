@@ -45,7 +45,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
 
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
+                user.getId().toString(), // Używamy ID jako username w UserDetails
                 user.getPassword(),
                 true,  // enabled (już sprawdziliśmy wcześniej)
                 true,  // accountNonExpired
@@ -53,6 +53,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 true,  // accountNonLocked
                 Collections.emptyList()  // authorities
         );
+    }
+    
+    /**
+     * Pobiera ID użytkownika na podstawie adresu email
+     * @param email Adres email użytkownika
+     * @return ID użytkownika
+     * @throws UsernameNotFoundException jeśli użytkownik nie istnieje
+     */
+    public Long getUserIdByEmail(String email) {
+        return userRepository.getUserByEmail(email)
+                .map(User::getId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
 }
 

@@ -36,7 +36,7 @@ public class BudgetServiceImpl implements BudgetService {
         budget.setDescription(budgetDTO.getDescription());
         budget.setUser(user);
         budget.setSpentAmount(BigDecimal.ZERO);
-
+        
         return budgetRepository.save(budget);
     }
 
@@ -83,7 +83,7 @@ public class BudgetServiceImpl implements BudgetService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return budgetRepository.findCurrentActiveBudgets(user.getId());
     }
-
+    
     @Override
     public List<Budget> getUpcomingBudgets(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
@@ -97,7 +97,7 @@ public class BudgetServiceImpl implements BudgetService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return budgetRepository.findPastBudgets(user.getId());
     }
-
+    
     @Override
     public List<Budget> getBudgetsInDateRange(String userEmail, LocalDate startDate, LocalDate endDate) {
         User user = userRepository.findByEmail(userEmail)
@@ -159,4 +159,4 @@ public class BudgetServiceImpl implements BudgetService {
     public List<Budget> getBudgetsByCategory(String userEmail, String category) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
-} 
+}
