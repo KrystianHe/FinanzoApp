@@ -16,15 +16,11 @@ FROM nginx:stable-alpine
 # Kopiowanie plików konfiguracyjnych
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Kopiowanie i ustawianie skryptu entrypoint
-COPY docker-entrypoint.sh /
-RUN chmod +x /docker-entrypoint.sh
-
 # Kopiowanie skompilowanej aplikacji
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Eksponowanie portu
 EXPOSE 80
 
-# Ustawienie skryptu entrypoint
-ENTRYPOINT ["/docker-entrypoint.sh"] 
+# Domyślne polecenie
+CMD ["nginx", "-g", "daemon off;"] 
