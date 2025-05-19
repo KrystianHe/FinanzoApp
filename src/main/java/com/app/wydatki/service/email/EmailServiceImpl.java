@@ -37,28 +37,47 @@ public class EmailServiceImpl implements EmailService {
             Email to = new Email(email);
             String subject = "Weryfikacja konta - Finanzo";
 
+            // Użyj publicznego URL dla logo
+            String logoUrl = "https://i.imgur.com/NxGJyoS.png"; // Przykładowe logo Finanzo (należy podmienić na właściwy URL)
+
             String htmlContent = String.format("""
                 <!DOCTYPE html>
                 <html>
                 <head>
                     <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Weryfikacja konta - Finanzo</title>
                     <style>
+                        body {
+                            font-family: 'Arial', sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            margin: 0;
+                            padding: 0;
+                            background-color: #f4f4f4;
+                        }
                         .container {
                             max-width: 600px;
                             margin: 0 auto;
                             padding: 20px;
-                            font-family: Arial, sans-serif;
+                        }
+                        .email-container {
+                            background-color: #ffffff;
+                            border-radius: 10px;
+                            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                            padding: 30px;
                         }
                         .header {
                             text-align: center;
                             margin-bottom: 30px;
                         }
                         .logo {
-                            max-width: 150px;
+                            max-width: 200px;
+                            height: auto;
                             margin-bottom: 20px;
                         }
                         .verification-code {
-                            background-color: #f8f9fa;
+                            background: linear-gradient(135deg, rgba(30, 60, 114, 0.1) 0%%, rgba(42, 82, 152, 0.1) 100%%);
                             border-radius: 8px;
                             padding: 20px;
                             text-align: center;
@@ -68,61 +87,54 @@ public class EmailServiceImpl implements EmailService {
                             font-size: 32px;
                             font-weight: bold;
                             color: #1e3c72;
-                            letter-spacing: 4px;
-                            margin: 10px 0;
+                            letter-spacing: 5px;
+                            margin: 20px 0;
                         }
                         .footer {
                             text-align: center;
-                            color: #6c757d;
-                            font-size: 12px;
                             margin-top: 30px;
-                            padding-top: 20px;
-                            border-top: 1px solid #dee2e6;
+                            color: #666;
+                            font-size: 12px;
+                        }
+                        .divider {
+                            border-top: 1px solid #eee;
+                            margin: 20px 0;
                         }
                     </style>
                 </head>
                 <body>
                     <div class="container">
-                        <div class="header">
-                            <img src="cid:logo" alt="Finanzo Logo" class="logo">
-                            <h1 style="color: #1e3c72; margin: 0;">Weryfikacja konta</h1>
-                        </div>
-                        
-                        <p>Witaj,</p>
-                        <p>Dziękujemy za rejestrację w serwisie Finanzo. Aby aktywować swoje konto, użyj poniższego kodu weryfikacyjnego:</p>
-                        
-                        <div class="verification-code">
-                            <p style="margin: 0; color: #666;">Twój kod weryfikacyjny:</p>
-                            <div class="code">%s</div>
-                            <p style="margin: 0; color: #666;">Kod jest ważny przez 24 godziny.</p>
-                        </div>
-                        
-                        <p>Jeśli nie rejestrowałeś się w serwisie Finanzo, zignoruj tę wiadomość.</p>
-                        
-                        <div class="footer">
-                            <p>© 2024 Finanzo. Wszelkie prawa zastrzeżone.</p>
-                            <p>Ta wiadomość została wygenerowana automatycznie, prosimy na nią nie odpowiadać.</p>
+                        <div class="email-container">
+                            <div class="header">
+                                <img src="%s" alt="Finanzo Logo" class="logo">
+                                <h1 style="color: #1e3c72; margin: 0;">Weryfikacja konta</h1>
+                            </div>
+                            
+                            <p>Witaj,</p>
+                            <p>Dziękujemy za rejestrację w serwisie Finanzo. Aby aktywować swoje konto, użyj poniższego kodu weryfikacyjnego:</p>
+                            
+                            <div class="verification-code">
+                                <p style="margin: 0; color: #666;">Twój kod weryfikacyjny:</p>
+                                <div class="code">%s</div>
+                                <p style="margin: 0; color: #666;">Kod jest ważny przez 24 godziny.</p>
+                            </div>
+                            
+                            <p>Jeśli nie rejestrowałeś się w serwisie Finanzo, zignoruj tę wiadomość.</p>
+                            
+                            <div class="divider"></div>
+                            
+                            <div class="footer">
+                                <p>© 2024 Finanzo. Wszelkie prawa zastrzeżone.</p>
+                                <p>Ta wiadomość została wygenerowana automatycznie, prosimy na nią nie odpowiadać.</p>
+                            </div>
                         </div>
                     </div>
                 </body>
                 </html>
-                """, verificationCode);
+                """, logoUrl, verificationCode);
 
             Content content = new Content("text/html", htmlContent);
             Mail mail = new Mail(from, subject, to, content);
-
-            // Add logo as inline attachment
-            ClassPathResource logoResource = new ClassPathResource("static/finanzo-logo.jpg");
-            byte[] logoBytes = Files.readAllBytes(logoResource.getFile().toPath());
-            String base64Logo = Base64.getEncoder().encodeToString(logoBytes);
-
-            Attachments attachments = new Attachments();
-            attachments.setFilename("finanzo-logo.png");
-            attachments.setType("image/jpeg");
-            attachments.setDisposition("inline");
-            attachments.setContentId("logo");
-            attachments.setContent(base64Logo);
-            mail.addAttachments(attachments);
 
             // Send the email
             Request request = new Request();
@@ -145,7 +157,6 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendPasswordResetEmail(String email, String resetToken) {
-        // TODO: Implement password reset email functionality
         throw new UnsupportedOperationException("Password reset email functionality not implemented yet");
     }
 } 
