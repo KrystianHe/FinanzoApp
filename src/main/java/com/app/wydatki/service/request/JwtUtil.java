@@ -22,7 +22,7 @@ public class JwtUtil {
 
     @Value("${security.jwt.expiration}")
     private long JWT_TOKEN_VALIDITY;
-    
+
     // Refresh token będzie ważny przez 7 dni
     private static final long REFRESH_TOKEN_VALIDITY = 7 * 24 * 60 * 60 * 1000; // 7 dni w milisekundach
 
@@ -35,7 +35,7 @@ public class JwtUtil {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userDetails.getUsername());
     }
-    
+
     public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("refresh", true);
@@ -57,7 +57,7 @@ public class JwtUtil {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-    
+
     private String createRefreshToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .setClaims(claims)
@@ -99,7 +99,6 @@ public class JwtUtil {
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(getSigningKey())
-                .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
