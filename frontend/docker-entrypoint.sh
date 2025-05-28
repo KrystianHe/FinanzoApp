@@ -24,19 +24,18 @@ echo "=============================================="
 echo "Konfigurowanie proxy dla backendu: $BACKEND_URL"
 echo "=============================================="
 
-# Jeśli zmienna PORT jest ustawiona, zmień konfigurację NGINX
-if [ -n "$PORT" ]; then
-  echo "Using PORT: $PORT"
-  sed -i "s|listen 80;|listen $PORT;|g" /etc/nginx/templates/default.conf.template
-fi
-
-# Skopiuj szablon do właściwej lokalizacji
-mkdir -p /etc/nginx/conf.d
+# Skopiuj konfigurację do właściwej lokalizacji
 cp /etc/nginx/templates/default.conf.template /etc/nginx/conf.d/default.conf
 
 # Podmieniamy URL backendu w konfiguracji nginx
 sed -i "s|proxy_pass .*;|proxy_pass $BACKEND_URL;|g" /etc/nginx/conf.d/default.conf
 sed -i "s|proxy_set_header Host .*;|proxy_set_header Host $(echo $BACKEND_URL | sed 's|^https\?://||' | sed 's|/.*$||');|g" /etc/nginx/conf.d/default.conf
+
+# Jeśli zmienna PORT jest ustawiona przez Railway, zmień port w konfiguracji NGINX
+if [ -n "$PORT" ] && [ "$PORT" != "80" ]; then
+  echo "Changing NGINX port to $PORT"
+  sed -i "s|listen 80;|listen $PORT;|g" /etc/nginx/conf.d/default.conf
+fi
 
 # Wypisz informacje o środowisku
 echo "Current environment:"
