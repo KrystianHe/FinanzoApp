@@ -5,17 +5,21 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
 import { LoginRequest, RegisterRequest, User } from '../models/user.model';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { environment } from '../environments/environment';
 
-interface LoginResponse {
+interface AuthResponse {
   token: string;
-  user: any;
+  user: {
+    id: number;
+    email: string;
+  };
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = environment.apiUrl;
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_DATA_KEY = 'user_data';
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);

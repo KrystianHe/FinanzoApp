@@ -1,50 +1,48 @@
 import axios from 'axios';
+import { environment } from '../environments/environment';
 
-// Funkcje pomocnicze do zarządzania tokenami
-const getToken = () => localStorage.getItem('token');
-const getRefreshToken = () => localStorage.getItem('refreshToken');
-const setTokens = (token, refreshToken) => {
-  localStorage.setItem('token', token);
-  localStorage.setItem('refreshToken', refreshToken);
-};
-const removeTokens = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('refreshToken');
+/**
+ * Pobranie tokena JWT z localStorage
+ * @returns {string|null} Token JWT lub null, jeśli token nie istnieje
+ */
+export const getToken = () => {
+  return localStorage.getItem('auth_token');
 };
 
-// Utwórz instancję do odświeżania tokenów (bez interceptorów, aby uniknąć nieskończonej pętli)
-const refreshApi = axios.create({
-  baseURL: 'http://localhost:8080/api',
-  headers: {
-    'Content-Type': 'application/json',
-  }
-});
+/**
+ * Zapisanie tokena JWT w localStorage
+ * @param {string} token - Token JWT
+ */
+export const setToken = (token) => {
+  localStorage.setItem('auth_token', token);
+};
 
-// Funkcja do odświeżania tokenu
-const refreshToken = async () => {
+/**
+ * Usunięcie tokena JWT z localStorage
+ */
+export const removeToken = () => {
+  localStorage.removeItem('auth_token');
+};
+
+/**
+ * Sprawdzenie czy token JWT istnieje i nie jest przeterminowany
+ * @returns {boolean} Prawda, jeśli token jest ważny
+ */
+export const isTokenValid = () => {
+  const token = getToken();
+  if (!token) return false;
+
   try {
-    const refreshToken = getRefreshToken();
-    if (!refreshToken) {
-      throw new Error('Brak tokenu odświeżającego');
-    }
-    
-    const response = await refreshApi.post('/auth/refresh-token', { refreshToken });
-    const { token, refreshToken: newRefreshToken } = response.data;
-    
-    // Zapisz nowe tokeny
-    setTokens(token, newRefreshToken);
-    return token;
-  } catch (error) {
-    // W przypadku błędu odświeżania, wyloguj użytkownika
-    removeTokens();
-    window.location.href = '/login';
-    throw error;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp > Date.now() / 1000;
+  } catch (e) {
+    return false;
   }
 };
 
 // Konfiguracja bazowa axios
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: environment.apiUrl,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -112,7 +110,7 @@ api.interceptors.response.use(
           return api(originalRequest);
         } catch (refreshError) {
           // Jeśli odświeżanie nie powiodło się, wyloguj użytkownika
-          removeTokens();
+          removeToken();
           window.location.href = '/login';
           return Promise.reject(refreshError);
         } finally {
@@ -295,7 +293,7 @@ export const authService = {
     try {
       const response = await api.post('/auth/login', credentials);
       // Zapisz oba tokeny w localStorage
-      setTokens(response.data.token, response.data.refreshToken);
+      setToken(response.data.token);
       return response.data;
     } catch (error) {
       console.error('Błąd podczas logowania:', error);
@@ -349,7 +347,7 @@ export const authService = {
   
   // Wylogowanie
   logout: () => {
-    removeTokens();
+    removeToken();
     window.location.href = '/login';
   },
   

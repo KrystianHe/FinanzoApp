@@ -26,7 +26,7 @@ export interface ExpenseByCategory {
   providedIn: 'root'
 })
 export class ExpenseService {
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = environment.apiUrl;
 
   // Dane testowe na potrzeby UI
   private mockCategories: Category[] = [
