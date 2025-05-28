@@ -12,13 +12,16 @@ COPY . .
 RUN npm run build
 
 # Druga faza - serwowanie za pomocą NGINX
-FROM nginx:stable-alpine
+FROM nginx:alpine
 
 # Kopiowanie plików konfiguracyjnych
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Kopiowanie skompilowanej aplikacji
 COPY --from=build /app/dist /usr/share/nginx/html
+
+# Tworzenie katalogu dla health check
+RUN mkdir -p /usr/share/nginx/html/health
 
 # Kopiowanie pliku health check
 COPY health.html /usr/share/nginx/html/health/index.html
