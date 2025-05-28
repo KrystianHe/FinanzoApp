@@ -1,16 +1,26 @@
-# Etap 1: Budowanie aplikacji
-FROM maven:3.9.6-eclipse-temurin-17 AS builder
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-COPY start.sh ./start.sh
-RUN mvn clean package -DskipTests
+# Obraz do budowania i uruchamiania aplikacji
+FROM maven:3.9.6-eclipse-temurin-17
 
-# Etap 2: Obraz produkcyjny
-FROM eclipse-temurin:17-jre-alpine
+# Ustaw katalog roboczy
 WORKDIR /app
-COPY --from=builder /app/target/Wydatki-0.0.1-SNAPSHOT.jar app.jar
-COPY --from=builder /app/start.sh ./start.sh
-RUN chmod +x ./start.sh
+
+# Skopiuj plik pom.xml i pobierz zależności (oddzielnie, aby wykorzystać cache)
+COPY pom.xml .
+
+# Skopiuj kod źródłowy
+COPY src ./src
+
+# Zbuduj aplikację (pakiet JAR)
+RUN mvn package -DskipTests
+
+# Znajdź JAR i przenieś go do znanej lokalizacji
+RUN mv $(find /app/target -name "*.jar" | head -n 1) /app/app.jar
+
+# Otwórz port 8080
 EXPOSE 8080
-CMD ["./start.sh"] 
+
+# Ustaw parametry pamięci dla JVM
+ENV JAVA_OPTS="-Xmx256m -Xms128m -XX:MaxMetaspaceSize=128m"
+
+# Uruchom aplikację przy starcie kontenera
+CMD java $JAVA_OPTS -jar /app/app.jar 
