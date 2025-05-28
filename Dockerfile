@@ -23,4 +23,4 @@ EXPOSE 8080
 ENV JAVA_OPTS="-Xmx256m -Xms128m -XX:MaxMetaspaceSize=128m"
 
 # Uruchom aplikację przy starcie kontenera
-CMD java $JAVA_OPTS -jar /app/app.jar 
+CMD java $JAVA_OPTS -jar /app/app.jar
