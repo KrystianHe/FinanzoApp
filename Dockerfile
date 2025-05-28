@@ -1,16 +1,24 @@
-# Etap 1: Budowanie aplikacji
-FROM maven:3.9.6-eclipse-temurin-17 AS builder
+# Obraz do budowania i uruchamiania aplikacji
+FROM maven:3.9.6-eclipse-temurin-17
+
+# Ustaw katalog roboczy
 WORKDIR /app
+
+# Skopiuj plik pom.xml i pobierz zależności (oddzielnie, aby wykorzystać cache)
 COPY pom.xml .
+
+# Skopiuj kod źródłowy i skrypt startowy
 COPY src ./src
 COPY start.sh ./start.sh
-RUN mvn clean package -DskipTests
 
-# Etap 2: Obraz produkcyjny
-FROM eclipse-temurin:17-jre-alpine
-WORKDIR /app
-COPY --from=builder /app/target/Wydatki-0.0.1-SNAPSHOT.jar app.jar
-COPY --from=builder /app/start.sh ./start.sh
+# Zbuduj aplikację (pakiet JAR)
+RUN mvn package -DskipTests
+
+# Nadaj uprawnienia wykonywania dla skryptu
 RUN chmod +x ./start.sh
+
+# Otwórz port 8080
 EXPOSE 8080
+
+# Uruchom aplikację przy starcie kontenera
 CMD ["./start.sh"] 
