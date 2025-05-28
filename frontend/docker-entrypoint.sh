@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # Podstawiamy URL backendu z zmiennej środowiskowej lub używamy domyślnej wartości
 BACKEND_URL=${BACKEND_URL:-https://finanzoapp-backend-production.up.railway.app}
@@ -23,34 +24,42 @@ echo "=============================================="
 echo "Konfigurowanie proxy dla backendu: $BACKEND_URL"
 echo "=============================================="
 
+# Jeśli zmienna PORT jest ustawiona, zmień konfigurację NGINX
+if [ -n "$PORT" ]; then
+  echo "Using PORT: $PORT"
+  sed -i "s|listen 80;|listen $PORT;|g" /etc/nginx/templates/default.conf.template
+fi
+
+# Skopiuj szablon do właściwej lokalizacji
+mkdir -p /etc/nginx/conf.d
+cp /etc/nginx/templates/default.conf.template /etc/nginx/conf.d/default.conf
+
 # Podmieniamy URL backendu w konfiguracji nginx
-sed -i "s|proxy_pass .*|proxy_pass $BACKEND_URL;|g" /etc/nginx/conf.d/default.conf
-sed -i "s|proxy_set_header Host .*|proxy_set_header Host $(echo $BACKEND_URL | sed 's|^https\?://||' | sed 's|/.*$||');|g" /etc/nginx/conf.d/default.conf
+sed -i "s|proxy_pass .*;|proxy_pass $BACKEND_URL;|g" /etc/nginx/conf.d/default.conf
+sed -i "s|proxy_set_header Host .*;|proxy_set_header Host $(echo $BACKEND_URL | sed 's|^https\?://||' | sed 's|/.*$||');|g" /etc/nginx/conf.d/default.conf
 
-# Sprawdź, czy plik index.html istnieje
-if [ -f /usr/share/nginx/html/index.html ]; then
-  echo "Plik index.html istnieje."
-else
-  echo "UWAGA: Brak pliku index.html, kopiuję fallback.html."
-  # Jeśli nie ma pliku index.html, skopiuj fallback.html
-  if [ -f /usr/share/nginx/html/fallback.html ]; then
-    cp /usr/share/nginx/html/fallback.html /usr/share/nginx/html/index.html
-  fi
-fi
+# Wypisz informacje o środowisku
+echo "Current environment:"
+echo "===================="
+echo "PORT: $PORT"
+echo "HOST: $HOST"
+echo "===================="
 
-# Sprawdź, czy katalog assets istnieje
-if [ -d /usr/share/nginx/html/assets ]; then
-  echo "Katalog assets istnieje. Zawartość:"
-  ls -la /usr/share/nginx/html/assets/
-else
-  echo "UWAGA: Brak katalogu assets."
-  mkdir -p /usr/share/nginx/html/assets
-fi
-
-# Wypisz zawartość katalogu
-echo "Zawartość głównego katalogu HTML:"
+# Wypisz zawartość katalogu HTML
+echo "Contents of /usr/share/nginx/html:"
 ls -la /usr/share/nginx/html/
 
-# Uruchamiamy komendę przekazaną jako argument (domyślnie nginx)
-echo "Uruchamianie NGINX..."
+# Sprawdź plik index.html
+if [ -f /usr/share/nginx/html/index.html ]; then
+  echo "index.html exists."
+else
+  echo "WARNING: index.html does not exist!"
+fi
+
+# Wypisz konfigurację NGINX
+echo "NGINX configuration:"
+cat /etc/nginx/conf.d/default.conf
+
+# Uruchom komendę (NGINX)
+echo "Starting NGINX..."
 exec "$@" 
