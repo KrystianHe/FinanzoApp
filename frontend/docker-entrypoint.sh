@@ -3,6 +3,17 @@
 # Podstawiamy URL backendu z zmiennej środowiskowej lub używamy domyślnej wartości
 BACKEND_URL=${BACKEND_URL:-https://finanzoapp-backend-production.up.railway.app}
 
+# Upewniamy się, że URL zawiera protokół
+case "$BACKEND_URL" in
+  http://*|https://*)
+    # URL już zawiera protokół, nic nie robimy
+    ;;
+  *)
+    # Dodajemy protokół https://
+    BACKEND_URL="https://${BACKEND_URL}"
+    ;;
+esac
+
 # Upewniamy się, że URL kończy się ukośnikiem
 if [ "$(echo $BACKEND_URL | grep -c '/$')" -eq 0 ]; then
   BACKEND_URL="${BACKEND_URL}/"

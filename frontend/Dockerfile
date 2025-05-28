@@ -23,9 +23,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Kopiowanie skompilowanych plików z etapu build
 COPY --from=build /app/dist/frontend /usr/share/nginx/html
 
-# Dla prostych deploymentów, można też użyć katalogu public
-COPY public/ /usr/share/nginx/html/
-
 # Dodanie skryptu entrypoint do dynamicznej konfiguracji
 COPY docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
