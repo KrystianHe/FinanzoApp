@@ -1,33 +1,17 @@
-# Etap budowania
-FROM node:18-alpine as build
+# Najprostszy możliwy Dockerfile - jeden etap
+FROM nginx:latest
 
-WORKDIR /app
-
-# Kopiowanie i instalacja zależności
-COPY package*.json ./
-RUN npm install --legacy-peer-deps
-
-# Kopiowanie i budowanie aplikacji
-COPY . .
-RUN npm run build
-
-# Druga faza - serwowanie za pomocą NGINX
-FROM nginx:alpine
-
-# Kopiowanie plików konfiguracyjnych
+# Kopiowanie pliku konfiguracyjnego
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Kopiowanie skompilowanej aplikacji
-COPY --from=build /app/dist /usr/share/nginx/html
+# Kopiowanie plików statycznych
+COPY public/ /usr/share/nginx/html/
 
-# Tworzenie katalogu dla health check
-RUN mkdir -p /usr/share/nginx/html/health
+# Dodanie pliku health check
+RUN echo "OK" > /usr/share/nginx/html/health
 
-# Kopiowanie pliku health check
-COPY health.html /usr/share/nginx/html/health/index.html
-
-# Eksponowanie portu
+# Wystawienie portu
 EXPOSE 80
 
-# Domyślne polecenie
+# Uruchomienie serwera
 CMD ["nginx", "-g", "daemon off;"]
