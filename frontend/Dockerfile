@@ -20,8 +20,8 @@ FROM nginx:stable-alpine
 # Kopiowanie pliku konfiguracyjnego nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Kopiowanie skompilowanych plików z etapu build
-COPY --from=build /app/dist/frontend /usr/share/nginx/html
+# Kopiowanie skompilowanych plików z etapu build - poprawiona ścieżka
+COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
 
 # Dodanie pliku zdrowia dla Railway
 RUN echo "OK" > /usr/share/nginx/html/health
