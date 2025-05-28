@@ -31,6 +31,7 @@ export class AuthService {
     private http: HttpClient,
     private router: Router
   ) {
+    console.log('AuthService initialized with API_URL:', this.API_URL);
     // Nie wywołujemy checkLoginStatus przy inicjalizacji, aby zapobiec automatycznemu przekierowaniu
   }
 
