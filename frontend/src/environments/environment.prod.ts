@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://finanzoapp-backend-production.up.railway.app/api'
-}; 
+  apiUrl: 'https://finanzo-backend.up.railway.app'
+};

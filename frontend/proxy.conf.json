@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://finanzoapp-backend-production.up.railway.app",
+    "target": "https://finanzo-backend.up.railway.app",
     "secure": true
   }
-} 
+}
