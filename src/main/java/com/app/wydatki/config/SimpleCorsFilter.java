@@ -22,7 +22,8 @@ public class SimpleCorsFilter implements Filter {
         // Set specific allowed origin
         String origin = request.getHeader("Origin");
         if (origin != null && (origin.equals("http://localhost:4200") ||
-                              origin.equals("https://finanzoapp-frontend-production.up.railway.app"))) {
+                              origin.equals("https://finanzoapp-frontend-production.up.railway.app") ||
+                              origin.equals("https://finanzo.up.railway.app"))) {
             response.setHeader("Access-Control-Allow-Origin", origin);
         }
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD");

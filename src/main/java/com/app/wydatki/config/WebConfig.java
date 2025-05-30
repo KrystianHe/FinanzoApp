@@ -12,9 +12,14 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:4200", "https://finanzoapp-frontend-production.up.railway.app")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedOrigins(
+                    "http://localhost:4200", 
+                    "https://finanzoapp-frontend-production.up.railway.app",
+                    "https://finanzo.up.railway.app"
+                )
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
                 .allowedHeaders("*")
+                .exposedHeaders("Authorization", "*")
                 .allowCredentials(true)
                 .maxAge(3600);
     }
