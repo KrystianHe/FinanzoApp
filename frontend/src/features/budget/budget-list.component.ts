@@ -1,6 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+interface Budget {
+  id: number;
+  name: string;
+  category: string;
+  startDate: Date;
+  endDate: Date;
+  amount: number;
+  spent: number;
+  categoryIcon?: string;
+}
+
 @Component({
   selector: 'app-budget-list',
   standalone: true,
@@ -17,7 +28,7 @@ import { CommonModule } from '@angular/common';
       <div class="card budget-filters">
         <div class="filter-group">
           <label>Status:</label>
-          <select>
+          <select (change)="applyFilters()">
             <option value="all">Wszystkie</option>
             <option value="active">Aktywne</option>
             <option value="completed">Zakończone</option>
@@ -26,7 +37,7 @@ import { CommonModule } from '@angular/common';
         </div>
         <div class="filter-group">
           <label>Kategoria:</label>
-          <select>
+          <select (change)="applyFilters()">
             <option value="all">Wszystkie</option>
             <option value="groceries">Zakupy spożywcze</option>
             <option value="entertainment">Rozrywka</option>
@@ -45,7 +56,7 @@ import { CommonModule } from '@angular/common';
           </div>
           <div class="stat-content">
             <h3>Całkowity budżet</h3>
-            <p class="amount">1700 zł</p>
+            <p class="amount">{{ totalBudget }} zł</p>
           </div>
         </div>
         <div class="card stat-card">
@@ -54,7 +65,7 @@ import { CommonModule } from '@angular/common';
           </div>
           <div class="stat-content">
             <h3>Wydano</h3>
-            <p class="amount">1020 zł</p>
+            <p class="amount">{{ totalSpent }} zł</p>
           </div>
         </div>
         <div class="card stat-card">
@@ -63,97 +74,47 @@ import { CommonModule } from '@angular/common';
           </div>
           <div class="stat-content">
             <h3>Pozostało</h3>
-            <p class="amount">680 zł</p>
+            <p class="amount">{{ totalRemaining }} zł</p>
           </div>
         </div>
       </div>
 
       <div class="budget-list">
-        <div class="card budget-card">
+        <!-- Budżety pobrane z bazy danych -->
+        <div class="card budget-card" *ngFor="let budget of budgets">
           <div class="budget-info">
-            <div class="category-icon grocery">
-              <i class="fas fa-shopping-basket"></i>
+            <div class="category-icon" [ngClass]="budget.category">
+              <i class="fas" [ngClass]="getCategoryIcon(budget.category)"></i>
             </div>
             <div class="budget-details">
-              <h3>Zakupy spożywcze</h3>
-              <p class="date-range">1-31 maja 2024</p>
+              <h3>{{ budget.name }}</h3>
+              <p class="date-range">{{ formatDateRange(budget.startDate, budget.endDate) }}</p>
               <div class="progress-section">
                 <div class="progress-bar">
-                  <div class="progress" style="width: 45%"></div>
+                  <div class="progress" 
+                       [ngClass]="getProgressClass(budget.spent, budget.amount)"
+                       [style.width.%]="getProgressPercentage(budget.spent, budget.amount)"></div>
                 </div>
                 <div class="progress-stats">
-                  <span class="progress-text">450 zł / 1000 zł</span>
-                  <span class="percentage">45%</span>
+                  <span class="progress-text">{{ budget.spent }} zł / {{ budget.amount }} zł</span>
+                  <span class="percentage">{{ getProgressPercentage(budget.spent, budget.amount) }}%</span>
                 </div>
               </div>
             </div>
           </div>
           <div class="budget-actions">
-            <button class="action-btn edit">
+            <button class="action-btn edit" (click)="editBudget(budget.id)">
               <i class="fas fa-pencil-alt"></i>
             </button>
-            <button class="action-btn delete">
+            <button class="action-btn delete" (click)="deleteBudget(budget.id)">
               <i class="fas fa-trash"></i>
             </button>
           </div>
         </div>
 
-        <div class="card budget-card">
-          <div class="budget-info">
-            <div class="category-icon entertainment">
-              <i class="fas fa-film"></i>
-            </div>
-            <div class="budget-details">
-              <h3>Rozrywka</h3>
-              <p class="date-range">1-31 maja 2024</p>
-              <div class="progress-section">
-                <div class="progress-bar">
-                  <div class="progress warning" style="width: 75%"></div>
-                </div>
-                <div class="progress-stats">
-                  <span class="progress-text">300 zł / 400 zł</span>
-                  <span class="percentage">75%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="budget-actions">
-            <button class="action-btn edit">
-              <i class="fas fa-pencil-alt"></i>
-            </button>
-            <button class="action-btn delete">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="card budget-card">
-          <div class="budget-info">
-            <div class="category-icon transport">
-              <i class="fas fa-bus"></i>
-            </div>
-            <div class="budget-details">
-              <h3>Transport</h3>
-              <p class="date-range">1-31 maja 2024</p>
-              <div class="progress-section">
-                <div class="progress-bar">
-                  <div class="progress danger" style="width: 90%"></div>
-                </div>
-                <div class="progress-stats">
-                  <span class="progress-text">270 zł / 300 zł</span>
-                  <span class="percentage">90%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="budget-actions">
-            <button class="action-btn edit">
-              <i class="fas fa-pencil-alt"></i>
-            </button>
-            <button class="action-btn delete">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
+        <!-- Stan pustej listy budżetów -->
+        <div class="empty-state" *ngIf="budgets.length === 0">
+          <p>Nie masz jeszcze żadnych budżetów. Kliknij "Dodaj budżet" aby utworzyć pierwszy budżet.</p>
         </div>
       </div>
     </div>
@@ -290,6 +251,15 @@ import { CommonModule } from '@angular/common';
       gap: 1.5rem;
     }
 
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 2rem;
+      color: #9ca3af;
+      background-color: #1A1C36;
+      border-radius: 0.8rem;
+    }
+
     .budget-card {
       padding: 1.5rem;
       display: flex;
@@ -313,7 +283,7 @@ import { CommonModule } from '@angular/common';
       flex-shrink: 0;
     }
 
-    .grocery {
+    .groceries {
       background-color: rgba(249, 115, 22, 0.2);
       color: #f97316;
     }
@@ -326,6 +296,21 @@ import { CommonModule } from '@angular/common';
     .transport {
       background-color: rgba(59, 130, 246, 0.2);
       color: #3b82f6;
+    }
+
+    .health {
+      background-color: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+
+    .utilities {
+      background-color: rgba(234, 88, 12, 0.2);
+      color: #ea580c;
+    }
+
+    .other {
+      background-color: rgba(107, 114, 128, 0.2);
+      color: #6b7280;
     }
 
     .budget-details {
@@ -433,7 +418,93 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class BudgetListComponent implements OnInit {
+  budgets: Budget[] = [];
+  totalBudget: number = 0;
+  totalSpent: number = 0;
+  totalRemaining: number = 0;
+
   constructor() {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    // Tutaj będzie wywołanie serwisu do pobrania budżetów z backendu
+    this.loadBudgets();
+  }
+
+  loadBudgets(): void {
+    // Tutaj będzie kod do pobrania budżetów z serwera
+    // Przykład: this.budgetService.getBudgets().subscribe(data => { this.budgets = data; this.calculateTotals(); });
+    
+    // Na razie pozostawiamy pustą tablicę
+    this.budgets = [];
+    this.calculateTotals();
+  }
+
+  calculateTotals(): void {
+    this.totalBudget = this.budgets.reduce((sum, budget) => sum + budget.amount, 0);
+    this.totalSpent = this.budgets.reduce((sum, budget) => sum + budget.spent, 0);
+    this.totalRemaining = this.totalBudget - this.totalSpent;
+  }
+
+  getProgressPercentage(spent: number, total: number): number {
+    if (total === 0) return 0;
+    const percentage = Math.round((spent / total) * 100);
+    return Math.min(percentage, 100); // Nie pozwalamy na wartości powyżej 100%
+  }
+
+  getProgressClass(spent: number, total: number): string {
+    const percentage = this.getProgressPercentage(spent, total);
+    if (percentage >= 90) return 'danger';
+    if (percentage >= 70) return 'warning';
+    return '';
+  }
+
+  getCategoryIcon(category: string): string {
+    switch (category) {
+      case 'groceries': return 'fa-shopping-basket';
+      case 'entertainment': return 'fa-film';
+      case 'transport': return 'fa-bus';
+      case 'health': return 'fa-heartbeat';
+      case 'utilities': return 'fa-bolt';
+      default: return 'fa-tag';
+    }
+  }
+
+  formatDateRange(startDate: Date, endDate: Date): string {
+    if (!startDate || !endDate) return '';
+    
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    const startDay = start.getDate();
+    const endDay = end.getDate();
+    const startMonth = start.getMonth() + 1;
+    const endMonth = end.getMonth() + 1;
+    const startYear = start.getFullYear();
+    const endYear = end.getFullYear();
+    
+    // Formatowanie w stylu "1-31 maja 2024" lub "1 stycznia - 28 lutego 2024"
+    const monthNames = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 
+                         'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'];
+    
+    if (startMonth === endMonth && startYear === endYear) {
+      return `${startDay}-${endDay} ${monthNames[startMonth-1]} ${startYear}`;
+    } else {
+      return `${startDay} ${monthNames[startMonth-1]} - ${endDay} ${monthNames[endMonth-1]} ${endYear}`;
+    }
+  }
+
+  applyFilters(): void {
+    // Tutaj będzie logika filtrowania budżetów
+    this.loadBudgets();
+  }
+
+  editBudget(id: number): void {
+    // Tutaj będzie logika edycji budżetu
+    console.log('Edytuj budżet:', id);
+  }
+
+  deleteBudget(id: number): void {
+    // Tutaj będzie logika usuwania budżetu
+    console.log('Usuń budżet:', id);
+  }
 } 

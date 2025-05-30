@@ -2,6 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
+interface Transaction {
+  id: number;
+  date: Date;
+  category: string;
+  description: string;
+  amount: number;
+  type: 'income' | 'expense';
+}
+
 @Component({
   selector: 'app-transaction-list',
   standalone: true,
@@ -19,11 +28,11 @@ import { FormsModule } from '@angular/forms';
         <div class="filters-row">
           <div class="search-container">
             <i class="fas fa-search"></i>
-            <input type="text" placeholder="Szukaj transakcji..." [(ngModel)]="searchTerm">
+            <input type="text" placeholder="Szukaj transakcji..." [(ngModel)]="searchTerm" (input)="applyFilters()">
           </div>
           <div class="filter-group">
             <label>Typ:</label>
-            <select [(ngModel)]="typeFilter">
+            <select [(ngModel)]="typeFilter" (change)="applyFilters()">
               <option value="all">Wszystkie</option>
               <option value="income">Przychody</option>
               <option value="expense">Wydatki</option>
@@ -31,7 +40,7 @@ import { FormsModule } from '@angular/forms';
           </div>
           <div class="filter-group">
             <label>Kategoria:</label>
-            <select [(ngModel)]="categoryFilter">
+            <select [(ngModel)]="categoryFilter" (change)="applyFilters()">
               <option value="all">Wszystkie</option>
               <option value="groceries">Zakupy spożywcze</option>
               <option value="salary">Wynagrodzenie</option>
@@ -44,7 +53,7 @@ import { FormsModule } from '@angular/forms';
           </div>
           <div class="filter-group">
             <label>Okres:</label>
-            <select [(ngModel)]="periodFilter">
+            <select [(ngModel)]="periodFilter" (change)="applyFilters()">
               <option value="this-month">Ten miesiąc</option>
               <option value="last-month">Poprzedni miesiąc</option>
               <option value="last-3-months">Ostatnie 3 miesiące</option>
@@ -58,11 +67,11 @@ import { FormsModule } from '@angular/forms';
           <div class="date-range">
             <div class="date-input">
               <label>Od:</label>
-              <input type="date" [(ngModel)]="startDate">
+              <input type="date" [(ngModel)]="startDate" (change)="applyFilters()">
             </div>
             <div class="date-input">
               <label>Do:</label>
-              <input type="date" [(ngModel)]="endDate">
+              <input type="date" [(ngModel)]="endDate" (change)="applyFilters()">
             </div>
           </div>
         </div>
@@ -75,7 +84,7 @@ import { FormsModule } from '@angular/forms';
           </div>
           <div class="card-content">
             <h3>Suma przychodów</h3>
-            <p class="amount">5200 zł</p>
+            <p class="amount">{{ totalIncome }} zł</p>
           </div>
         </div>
         <div class="card summary-card expenses">
@@ -84,7 +93,7 @@ import { FormsModule } from '@angular/forms';
           </div>
           <div class="card-content">
             <h3>Suma wydatków</h3>
-            <p class="amount">1619,58 zł</p>
+            <p class="amount">{{ totalExpenses }} zł</p>
           </div>
         </div>
         <div class="card summary-card balance">
@@ -93,7 +102,7 @@ import { FormsModule } from '@angular/forms';
           </div>
           <div class="card-content">
             <h3>Bilans</h3>
-            <p class="amount">3580,42 zł</p>
+            <p class="amount">{{ balance }} zł</p>
           </div>
         </div>
       </div>
@@ -130,120 +139,45 @@ import { FormsModule } from '@angular/forms';
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>20.05.2024</td>
+            <tr *ngFor="let transaction of transactions">
+              <td>{{ formatDate(transaction.date) }}</td>
               <td>
                 <div class="category">
-                  <span class="category-icon grocery">
-                    <i class="fas fa-shopping-basket"></i>
+                  <span class="category-icon" [ngClass]="transaction.category">
+                    <i class="fas" [ngClass]="getCategoryIcon(transaction.category)"></i>
                   </span>
-                  <span>Zakupy spożywcze</span>
+                  <span>{{ getCategoryName(transaction.category) }}</span>
                 </div>
               </td>
-              <td>Biedronka</td>
-              <td class="amount expense">-125,45 zł</td>
+              <td>{{ transaction.description }}</td>
+              <td class="amount" [ngClass]="transaction.type">
+                {{ transaction.type === 'income' ? '+' : '-' }}{{ Math.abs(transaction.amount).toFixed(2) }} zł
+              </td>
               <td class="actions">
-                <button class="action-btn edit">
+                <button class="action-btn edit" (click)="editTransaction(transaction.id)">
                   <i class="fas fa-pencil-alt"></i>
                 </button>
-                <button class="action-btn delete">
+                <button class="action-btn delete" (click)="deleteTransaction(transaction.id)">
                   <i class="fas fa-trash"></i>
                 </button>
               </td>
             </tr>
-            <tr>
-              <td>15.05.2024</td>
-              <td>
-                <div class="category">
-                  <span class="category-icon salary">
-                    <i class="fas fa-money-check-alt"></i>
-                  </span>
-                  <span>Wynagrodzenie</span>
-                </div>
-              </td>
-              <td>Pensja za kwiecień</td>
-              <td class="amount income">+3500,00 zł</td>
-              <td class="actions">
-                <button class="action-btn edit">
-                  <i class="fas fa-pencil-alt"></i>
-                </button>
-                <button class="action-btn delete">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>12.05.2024</td>
-              <td>
-                <div class="category">
-                  <span class="category-icon entertainment">
-                    <i class="fas fa-film"></i>
-                  </span>
-                  <span>Rozrywka</span>
-                </div>
-              </td>
-              <td>Kino Cinema City</td>
-              <td class="amount expense">-48,90 zł</td>
-              <td class="actions">
-                <button class="action-btn edit">
-                  <i class="fas fa-pencil-alt"></i>
-                </button>
-                <button class="action-btn delete">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>10.05.2024</td>
-              <td>
-                <div class="category">
-                  <span class="category-icon transport">
-                    <i class="fas fa-bus"></i>
-                  </span>
-                  <span>Transport</span>
-                </div>
-              </td>
-              <td>Bilet miesięczny</td>
-              <td class="amount expense">-120,00 zł</td>
-              <td class="actions">
-                <button class="action-btn edit">
-                  <i class="fas fa-pencil-alt"></i>
-                </button>
-                <button class="action-btn delete">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>05.05.2024</td>
-              <td>
-                <div class="category">
-                  <span class="category-icon utilities">
-                    <i class="fas fa-bolt"></i>
-                  </span>
-                  <span>Rachunki</span>
-                </div>
-              </td>
-              <td>Prąd</td>
-              <td class="amount expense">-175,23 zł</td>
-              <td class="actions">
-                <button class="action-btn edit">
-                  <i class="fas fa-pencil-alt"></i>
-                </button>
-                <button class="action-btn delete">
-                  <i class="fas fa-trash"></i>
-                </button>
+            
+            <!-- Komunikat o braku transakcji -->
+            <tr *ngIf="transactions.length === 0">
+              <td colspan="5" class="no-data">
+                <p>Brak transakcji spełniających kryteria wyszukiwania.</p>
               </td>
             </tr>
           </tbody>
         </table>
         
-        <div class="pagination">
-          <button [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">
+        <div class="pagination" *ngIf="totalPages > 1">
+          <button [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
             <i class="fas fa-chevron-left"></i>
           </button>
           <span>Strona {{ currentPage }} z {{ totalPages }}</span>
-          <button [disabled]="currentPage === totalPages" (click)="currentPage = currentPage + 1">
+          <button [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
             <i class="fas fa-chevron-right"></i>
           </button>
         </div>
@@ -308,27 +242,31 @@ import { FormsModule } from '@angular/forms';
       margin-bottom: 1rem;
     }
 
+    .filters-row:last-child {
+      margin-bottom: 0;
+    }
+
     .search-container {
-      position: relative;
+      display: flex;
+      align-items: center;
+      background-color: #242848;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
       flex: 1;
       min-width: 200px;
     }
 
     .search-container i {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #6b7280;
+      color: #9ca3af;
+      margin-right: 0.5rem;
     }
 
     .search-container input {
-      width: 100%;
-      padding: 0.8rem 1rem 0.8rem 2.5rem;
-      border-radius: 0.5rem;
-      border: 1px solid #374151;
-      background-color: #242848;
+      background: none;
+      border: none;
       color: #e4e6f1;
+      width: 100%;
+      outline: none;
       font-size: 0.9rem;
     }
 
@@ -356,13 +294,19 @@ import { FormsModule } from '@angular/forms';
     .date-range {
       display: flex;
       gap: 1rem;
-      width: 100%;
+      flex: 1;
     }
 
     .date-input {
       display: flex;
       flex-direction: column;
       flex: 1;
+    }
+
+    .date-input label {
+      margin-bottom: 0.3rem;
+      font-size: 0.85rem;
+      color: #9ca3af;
     }
 
     .date-input input {
@@ -427,35 +371,33 @@ import { FormsModule } from '@angular/forms';
     }
 
     .transactions-table-container {
+      padding: 1.5rem;
       overflow-x: auto;
     }
 
     .transactions-table {
       width: 100%;
       border-collapse: collapse;
-    }
-
-    .transactions-table th, 
-    .transactions-table td {
-      padding: 1rem;
-      text-align: left;
-      border-bottom: 1px solid #2d3748;
-    }
-
-    .transactions-table thead {
-      background-color: #242848;
+      min-width: 600px;
     }
 
     .transactions-table th {
+      padding: 1rem;
+      text-align: left;
       color: #9ca3af;
       font-weight: 500;
-      font-size: 0.9rem;
+      border-bottom: 1px solid #242848;
     }
 
     .th-content {
       display: flex;
       align-items: center;
       cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .th-content:hover {
+      color: #e4e6f1;
     }
 
     .th-content i {
@@ -463,8 +405,11 @@ import { FormsModule } from '@angular/forms';
       font-size: 0.8rem;
     }
 
-    .th-content:hover {
-      color: #3b82f6;
+    .transactions-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #242848;
+      color: #e4e6f1;
+      font-size: 0.95rem;
     }
 
     .category {
@@ -483,7 +428,7 @@ import { FormsModule } from '@angular/forms';
       font-size: 1rem;
     }
 
-    .grocery {
+    .groceries {
       background-color: rgba(249, 115, 22, 0.2);
       color: #f97316;
     }
@@ -503,15 +448,30 @@ import { FormsModule } from '@angular/forms';
       color: #3b82f6;
     }
 
+    .health {
+      background-color: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+
+    .utilities {
+      background-color: rgba(234, 88, 12, 0.2);
+      color: #ea580c;
+    }
+
+    .other {
+      background-color: rgba(107, 114, 128, 0.2);
+      color: #6b7280;
+    }
+
     .amount {
       font-weight: 600;
     }
 
-    .amount.income {
+    .income {
       color: #22c55e;
     }
 
-    .amount.expense {
+    .expense {
       color: #ef4444;
     }
 
@@ -549,44 +509,60 @@ import { FormsModule } from '@angular/forms';
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
+      margin-top: 1.5rem;
       gap: 1rem;
     }
 
     .pagination button {
-      background: none;
+      background-color: #242848;
       border: none;
-      color: #3b82f6;
-      cursor: pointer;
+      border-radius: 50%;
+      color: #e4e6f1;
       width: 35px;
       height: 35px;
-      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
       transition: all 0.2s;
     }
 
-    .pagination button:hover:not([disabled]) {
-      background-color: #242848;
-    }
-
-    .pagination button[disabled] {
+    .pagination button:disabled {
+      background-color: #1e1f2f;
       color: #6b7280;
       cursor: not-allowed;
+    }
+
+    .pagination button:not(:disabled):hover {
+      background-color: #2f3356;
+    }
+
+    .pagination span {
+      color: #9ca3af;
+      font-size: 0.9rem;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 2rem 0;
+      color: #9ca3af;
     }
 
     @media (max-width: 768px) {
       .filters-row {
         flex-direction: column;
       }
-      
+
       .search-container {
-        width: 100%;
+        min-width: auto;
       }
-      
+
       .summary-cards {
         grid-template-columns: 1fr;
+      }
+
+      .date-range {
+        flex-direction: column;
       }
     }
   `]
@@ -599,24 +575,170 @@ export class TransactionListComponent implements OnInit {
   startDate: string = '';
   endDate: string = '';
   currentPage: number = 1;
-  totalPages: number = 5;
+  totalPages: number = 0;
+  sortColumn: string = 'date';
+  sortDirection: 'asc' | 'desc' = 'desc';
+  
+  transactions: Transaction[] = [];
+  totalIncome: number = 0;
+  totalExpenses: number = 0;
+  balance: number = 0;
+  
+  // Dostęp do obiektu Math w template
+  Math = Math;
 
   constructor() {}
 
   ngOnInit(): void {
-    const now = new Date();
-    const lastMonthDate = new Date();
-    lastMonthDate.setMonth(now.getMonth() - 1);
+    // Inicjalizacja dat dla filtra "Ten miesiąc"
+    this.setDefaultDates();
     
-    this.startDate = this.formatDate(lastMonthDate);
-    this.endDate = this.formatDate(now);
+    // Pobieranie transakcji
+    this.loadTransactions();
+  }
+  
+  setDefaultDates(): void {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    
+    this.startDate = this.formatDateForInput(firstDay);
+    this.endDate = this.formatDateForInput(lastDay);
+  }
+  
+  formatDateForInput(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  loadTransactions(): void {
+    // Tutaj będzie kod do pobrania transakcji z serwera
+    // Na przykład: this.transactionService.getTransactions(this.filters).subscribe(data => { this.transactions = data; this.calculateTotals(); });
+    
+    // Na razie pozostawiamy pustą tablicę
+    this.transactions = [];
+    this.calculateTotals();
+    
+    // Ustaw liczbę stron na 0, jeśli brak transakcji
+    this.totalPages = 0;
+  }
+  
+  calculateTotals(): void {
+    this.totalIncome = this.transactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
+      
+    this.totalExpenses = this.transactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+      
+    this.balance = this.totalIncome - this.totalExpenses;
   }
 
   formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    if (!date) return '';
+    const d = new Date(date);
+    return `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth() + 1).toString().padStart(2, '0')}.${d.getFullYear()}`;
   }
 
   sortBy(column: string): void {
-    console.log(`Sorting by ${column}`);
+    if (this.sortColumn === column) {
+      // Zmień kierunek sortowania, jeśli kliknięto tę samą kolumnę
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // Ustaw nową kolumnę sortowania
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    
+    // Wywołaj filtrowanie, aby ponownie pobrać dane z sortowaniem
+    this.applyFilters();
+  }
+  
+  getCategoryIcon(category: string): string {
+    switch (category) {
+      case 'groceries': return 'fa-shopping-basket';
+      case 'salary': return 'fa-money-check-alt';
+      case 'entertainment': return 'fa-film';
+      case 'transport': return 'fa-bus';
+      case 'health': return 'fa-heartbeat';
+      case 'utilities': return 'fa-bolt';
+      default: return 'fa-tag';
+    }
+  }
+  
+  getCategoryName(category: string): string {
+    switch (category) {
+      case 'groceries': return 'Zakupy spożywcze';
+      case 'salary': return 'Wynagrodzenie';
+      case 'entertainment': return 'Rozrywka';
+      case 'transport': return 'Transport';
+      case 'health': return 'Zdrowie';
+      case 'utilities': return 'Rachunki';
+      default: return 'Inne';
+    }
+  }
+  
+  applyFilters(): void {
+    // Ustaw stronę na pierwszą przy zmianie filtrów
+    this.currentPage = 1;
+    
+    // Ustaw daty na podstawie wybranego okresu
+    this.setDatesByPeriod();
+    
+    // Pobierz transakcje z zastosowanymi filtrami
+    this.loadTransactions();
+  }
+  
+  setDatesByPeriod(): void {
+    const now = new Date();
+    let start = new Date();
+    let end = new Date();
+    
+    switch (this.periodFilter) {
+      case 'this-month':
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        break;
+      case 'last-month':
+        start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        end = new Date(now.getFullYear(), now.getMonth(), 0);
+        break;
+      case 'last-3-months':
+        start = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        break;
+      case 'last-6-months':
+        start = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        break;
+      case 'this-year':
+        start = new Date(now.getFullYear(), 0, 1);
+        end = new Date(now.getFullYear(), 11, 31);
+        break;
+      case 'custom':
+        // Pozostaw daty wprowadzone przez użytkownika
+        return;
+    }
+    
+    this.startDate = this.formatDateForInput(start);
+    this.endDate = this.formatDateForInput(end);
+  }
+  
+  goToPage(page: number): void {
+    this.currentPage = page;
+    this.loadTransactions();
+  }
+  
+  editTransaction(id: number): void {
+    console.log('Edytuj transakcję:', id);
+    // Tutaj będzie logika edycji transakcji
+  }
+  
+  deleteTransaction(id: number): void {
+    console.log('Usuń transakcję:', id);
+    // Tutaj będzie logika usuwania transakcji
   }
 } 

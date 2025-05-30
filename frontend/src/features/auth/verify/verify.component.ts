@@ -17,7 +17,11 @@ import {ParticlesComponent} from '../../shared/components/particles.component';
         <div class="verify-header">
           <img src="assets/finanzo-logo.jpg" alt="Finanzo" class="logo">
           <h2>Weryfikacja konta</h2>
-          <p>Podaj kod weryfikacyjny wysłany na Twój adres email</p>
+          <p>Wprowadź kod weryfikacyjny, który został wysłany na Twój adres email</p>
+          <div class="spam-note">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>Jeśli nie widzisz wiadomości, sprawdź folder SPAM</span>
+          </div>
         </div>
 
         <form (ngSubmit)="onSubmit()" #verifyForm="ngForm" class="verify-form">
@@ -254,6 +258,23 @@ import {ParticlesComponent} from '../../shared/components/particles.component';
         margin: 1rem;
         max-width: 100%;
       }
+    }
+
+    .spam-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      padding: 0.5rem 1rem;
+      background-color: #fef9c3;
+      border-radius: 8px;
+      color: #854d0e;
+      font-size: 0.9rem;
+    }
+
+    .spam-note i {
+      font-size: 1rem;
     }
   `]
 })

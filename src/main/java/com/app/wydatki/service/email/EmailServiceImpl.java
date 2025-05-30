@@ -35,10 +35,10 @@ public class EmailServiceImpl implements EmailService {
         try {
             Email from = new Email(fromEmail, fromName);
             Email to = new Email(email);
-            String subject = "Weryfikacja konta - Finanzo";
+            String subject = "Twój kod weryfikacyjny do Finanzo";
 
-            // Użyj publicznego URL dla logo
-            String logoUrl = "https://i.imgur.com/NxGJyoS.png"; // Przykładowe logo Finanzo (należy podmienić na właściwy URL)
+            // Use a reliable, secure image host or embed the image
+            String logoUrl = "https://i.imgur.com/NxGJyoS.png";
 
             String htmlContent = String.format("""
                 <!DOCTYPE html>
@@ -110,7 +110,7 @@ public class EmailServiceImpl implements EmailService {
                                 <h1 style="color: #1e3c72; margin: 0;">Weryfikacja konta</h1>
                             </div>
                             
-                            <p>Witaj,</p>
+                            <p>Witaj Użytkowniku,</p>
                             <p>Dziękujemy za rejestrację w serwisie Finanzo. Aby aktywować swoje konto, użyj poniższego kodu weryfikacyjnego:</p>
                             
                             <div class="verification-code">
@@ -125,7 +125,8 @@ public class EmailServiceImpl implements EmailService {
                             
                             <div class="footer">
                                 <p>© 2024 Finanzo. Wszelkie prawa zastrzeżone.</p>
-                                <p>Ta wiadomość została wygenerowana automatycznie, prosimy na nią nie odpowiadać.</p>
+                                <p>Ta wiadomość została wysłana, ponieważ adres email został użyty do rejestracji w serwisie Finanzo.</p>
+                                <p>Nadawca: Finanzo, kontakt@finanzo.app</p>
                             </div>
                         </div>
                     </div>
@@ -135,6 +136,18 @@ public class EmailServiceImpl implements EmailService {
 
             Content content = new Content("text/html", htmlContent);
             Mail mail = new Mail(from, subject, to, content);
+
+            // Add plain text alternative for better deliverability
+            Content plainText = new Content("text/plain", 
+                "Witaj Użytkowniku,\n\n" +
+                "Dziękujemy za rejestrację w serwisie Finanzo.\n" +
+                "Twój kod weryfikacyjny: " + verificationCode + "\n" +
+                "Kod jest ważny przez 24 godziny.\n\n" +
+                "Jeśli nie rejestrowałeś się w serwisie Finanzo, zignoruj tę wiadomość.\n\n" +
+                "© 2024 Finanzo. Wszelkie prawa zastrzeżone.\n" +
+                "Nadawca: Finanzo, kontakt@finanzo.app"
+            );
+            mail.addContent(plainText);
 
             // Send the email
             Request request = new Request();
