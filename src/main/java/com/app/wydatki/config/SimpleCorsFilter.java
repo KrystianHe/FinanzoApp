@@ -22,7 +22,9 @@ public class SimpleCorsFilter implements Filter {
         // Set specific allowed origin
         String origin = request.getHeader("Origin");
         if (origin != null && (origin.equals("https://finanzo.up.railway.app") || 
-                              origin.equals("https://finanzoapp-frontend-production.up.railway.app"))) {
+                              origin.equals("https://finanzoapp-frontend-production.up.railway.app") ||
+                              origin.equals("http://localhost:4200") ||
+                              origin.equals("http://localhost:8080"))) {
             response.setHeader("Access-Control-Allow-Origin", origin);
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD");
             response.setHeader("Access-Control-Max-Age", "3600");

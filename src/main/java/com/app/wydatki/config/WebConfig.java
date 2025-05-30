@@ -14,7 +14,9 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(
                     "https://finanzo.up.railway.app",
-                    "https://finanzoapp-frontend-production.up.railway.app"
+                    "https://finanzoapp-frontend-production.up.railway.app",
+                    "http://localhost:4200",
+                    "http://localhost:8080"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
                 .allowedHeaders("*")

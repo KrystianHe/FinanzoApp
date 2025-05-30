@@ -1,6 +1,7 @@
 {
   "/api": {
-    "target": "https://finanzoapp-backend-production.up.railway.app",
-    "secure": true
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
   }
 }

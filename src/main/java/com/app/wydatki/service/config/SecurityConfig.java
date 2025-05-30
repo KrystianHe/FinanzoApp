@@ -59,7 +59,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
             "https://finanzo.up.railway.app",
-            "https://finanzoapp-frontend-production.up.railway.app"
+            "https://finanzoapp-frontend-production.up.railway.app",
+            "http://localhost:4200",
+            "http://localhost:8080"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
