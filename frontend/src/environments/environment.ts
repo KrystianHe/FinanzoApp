@@ -8,5 +8,5 @@ declare global {
 
 export const environment = {
   production: false,
-  apiUrl: window.env?.BACKEND_URL || 'https://finanzo-backend.up.railway.app'
+  apiUrl: window.env?.BACKEND_URL || 'https://finanzoapp-backend-production.up.railway.app/api'
 };

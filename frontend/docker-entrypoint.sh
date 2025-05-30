@@ -2,7 +2,7 @@
 set -e
 
 # Podstawiamy URL backendu z zmiennej środowiskowej lub używamy domyślnej wartości
-BACKEND_URL=${BACKEND_URL:-https://finanzo-backend.up.railway.app}
+BACKEND_URL=${BACKEND_URL:-https://finanzoapp-backend-production.up.railway.app/api}
 
 # Upewniamy się, że URL zawiera protokół
 case "$BACKEND_URL" in
