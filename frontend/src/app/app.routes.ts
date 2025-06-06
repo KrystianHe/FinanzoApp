@@ -1,37 +1,21 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../guards/auth.guard';
+import { LoginComponent } from '../features/auth/login/login.component';
+import { RegisterComponent } from '../features/auth/register/register.component';
+import { DashboardComponent } from '../features/dashboard/dashboard.component';
+import { SettingsComponent } from '../features/settings/settings.component';
 
 export const routes: Routes = [
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
   {
-    path: 'login',
-    loadComponent: () => import('../features/auth/login/login.component').then(m => m.LoginComponent)
-  },
-  {
-    path: 'register',
-    loadComponent: () => import('../features/auth/register/register.component').then(m => m.RegisterComponent)
-  },
-  {
-    path: '',
-    loadComponent: () => import('./layout/layout.component').then(m => m.LayoutComponent),
-    canActivate: [AuthGuard],
+    path: 'dashboard',
+    component: DashboardComponent,
     children: [
-      {
-        path: 'dashboard',
-        loadComponent: () => import('../features/dashboard/dashboard.component').then(m => m.DashboardComponent)
-      },
-      {
-        path: 'settings',
-        loadComponent: () => import('../features/settings/settings.component').then(m => m.SettingsComponent)
-      },
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      }
+      { path: 'home', component: DashboardComponent },
+      { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]
   },
-  {
-    path: '**',
-    redirectTo: ''
-  }
+  { path: 'settings', component: SettingsComponent },
+  { path: '', redirectTo: '/dashboard/home', pathMatch: 'full' }
 ];
