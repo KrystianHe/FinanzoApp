@@ -6,7 +6,6 @@ import { ParticlesComponent } from '../shared/components/particles.component';
 import { ExpenseService, ExpenseByCategory } from '../../services/expense.service';
 import { Chart, registerables } from 'chart.js';
 
-// Rejestracja wszystkich komponentów Chart.js
 Chart.register(...registerables);
 
 @Component({
@@ -27,6 +26,10 @@ Chart.register(...registerables);
           <a routerLink="/transactions" routerLinkActive="active" class="menu-item">
             <i class="fas fa-wallet"></i>
             <span>Transakcje</span>
+          </a>
+          <a routerLink="/budgets" routerLinkActive="active" class="menu-item">
+            <i class="fas fa-hand-holding-usd"></i>
+            <span>Budżety</span>
           </a>
           <a routerLink="/analytics" routerLinkActive="active" class="menu-item">
             <i class="fas fa-chart-pie"></i>
@@ -437,25 +440,27 @@ export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    // Pobierz email użytkownika z localStorage
-    const userData = localStorage.getItem('user_data');
-    if (userData) {
-      this.userEmail = JSON.parse(userData).email || 'Użytkownik';
-    } else {
+    try {
+      const userData = localStorage.getItem('user_data');
+      if (userData) {
+        const parsedUserData = JSON.parse(userData);
+        this.userEmail = parsedUserData?.email || 'Użytkownik';
+      } else {
+        this.userEmail = 'Użytkownik';
+      }
+
+      this.dateTimeInterval = setInterval(() => {
+        this.currentDateTime = new Date();
+      }, 1000);
+
+      this.loadExpensesData();
+    } catch (error) {
+      console.error('Error loading user data:', error);
       this.userEmail = 'Użytkownik';
     }
-
-    // Aktualizuj datę i czas co sekundę
-    this.dateTimeInterval = setInterval(() => {
-      this.currentDateTime = new Date();
-    }, 1000);
-
-    // Pobierz dane o wydatkach
-    this.loadExpensesData();
   }
 
   ngAfterViewInit(): void {
-    // Utworzenie wykresu po zainicjalizowaniu widoku
     this.createExpensesChart();
   }
 
