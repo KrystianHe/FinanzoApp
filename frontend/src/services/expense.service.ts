@@ -77,7 +77,7 @@ export class ExpenseService {
       categoryObj: this.categoryMap[expense.category] || {
         id: 0,
         name: expense.category,
-        color: '#CCCCCC' // Domyślny kolor dla nieznanych kategorii
+        color: '#CCCCCC'
       }
     }));
   }
@@ -85,16 +85,13 @@ export class ExpenseService {
   getExpensesByCategory(): Observable<ExpenseByCategory[]> {
     return this.getAllExpenses().pipe(
       map(expenses => {
-        // Dodajemy obiekty kategorii do wydatków
         const expensesWithCategories = this.mapExpensesToFullCategories(expenses);
-        
-        // Oblicz sumę wszystkich wydatków
+
         const totalExpenses = expensesWithCategories.reduce((sum, expense) => sum + expense.amount, 0);
-        
-        // Grupuj wydatki według kategorii
+
         const expensesByCategory = expensesWithCategories.reduce((result, expense) => {
           const categoryName = expense.category;
-          
+
           if (!result[categoryName]) {
             result[categoryName] = {
               categoryName: expense.category,
@@ -103,18 +100,16 @@ export class ExpenseService {
               percentage: 0
             };
           }
-          
+
           result[categoryName].totalAmount += expense.amount;
           return result;
         }, {} as Record<string, ExpenseByCategory>);
-        
-        // Przekształć obiekt w tablicę i oblicz procenty
+
         const result = Object.values(expensesByCategory).map(item => {
           item.percentage = (item.totalAmount / totalExpenses) * 100;
           return item;
         });
-        
-        // Sortuj według kwoty (malejąco)
+
         return result.sort((a, b) => b.totalAmount - a.totalAmount);
       })
     );
@@ -148,4 +143,4 @@ export class ExpenseService {
   getExpenseById(id: number): Observable<Expense> {
     return this.http.get<Expense>(`${this.API_URL}/expenses/${id}`);
   }
-} 
+}

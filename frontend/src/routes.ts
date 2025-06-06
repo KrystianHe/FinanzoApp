@@ -8,6 +8,7 @@ import { TransactionListComponent } from './features/transactions/transaction-li
 import { BudgetListComponent } from './features/budget/budget-list.component';
 import { ExpenseListComponent } from './features/expenses/expense-list/expense-list.component';
 import { AuthGuard } from './guards/auth.guard';
+import {SettingsComponent} from './features/settings/settings.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -23,5 +24,6 @@ export const routes: Routes = [
   { path: 'transactions', component: TransactionListComponent, canActivate: [AuthGuard] },
   { path: 'budgets', component: BudgetListComponent, canActivate: [AuthGuard] },
   { path: 'expenses', component: ExpenseListComponent, canActivate: [AuthGuard] },
+  { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
-]; 
+];
